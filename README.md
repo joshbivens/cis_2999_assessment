@@ -37,13 +37,6 @@ This project is an text editor developed in Python as the assessment assignment 
 - I need to implement undo/redo functions
 - I need to integrate basic syntax highlighting for Python
 
-## Implementation Phases
-1. Project setup and basic text editing functionality
-2. File operations and GUI development
-3. Find functionality, line numbering, text manipulation
-4. Basic syntax highlighting
-5. Testing, bug fixing, and documentation
-
 ## Project Structure
 
 ### Base Class: TextEditor
@@ -65,6 +58,13 @@ This project is an text editor developed in Python as the assessment assignment 
 - handle_events()
 - find_text()
 - highlight_syntax()
+
+## Implementation Phases
+1. Project setup and basic text editing functionality
+2. File operations and GUI development
+3. Find functionality, line numbering, text manipulation
+4. Basic syntax highlighting
+5. Testing, bug fixing, and documentation
 
 ## Testing:
 #### TextEditor
