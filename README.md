@@ -66,11 +66,6 @@ This project is an text editor developed in Python as the assessment assignment 
 4. Basic syntax highlighting
 5. Testing, bug fixing, and documentation
 
-## Challenges and Considerations
-- Balancing functionality with maintainable code
-- Ensuring cross-platform compatibility
-- Optimizing performance for larger files
-
 ## Testing:
 #### TextEditor
 - Create a new file and verify content is empty
