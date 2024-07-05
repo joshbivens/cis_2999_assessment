@@ -81,11 +81,11 @@ This project is an text editor developed in Python as the assessment assignment 
 - Verify all menu items function correctly
 - Test find functionality
 - Verify line numbers display correctly
-- Check basic syntax highlighting for Python code
+- Test basic syntax highlighting for Python code
 
 ## Future Enhancements
 - Text formatting options
-- Multiple document interface
+- Multiple document interface (tabs)
 - More comprehensive syntax highlighting for additional languages
 
 ## Contributing
