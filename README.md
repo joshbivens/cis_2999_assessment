@@ -71,11 +71,7 @@ This project is an text editor developed in Python as the assessment assignment 
 - Ensuring cross-platform compatibility
 - Optimizing performance for larger files
 
-## Testing Strategy
-- Unit tests for core functionality
-- Manual testing for GUI and overall functionality
-
-### Test Cases:
+## Testing:
 #### TextEditor
 - Create a new file and verify content is empty
 - Open an existing file and verify content is loaded correctly
