@@ -21,8 +21,6 @@ This project is an text editor developed in Python as the assessment assignment 
 - GUI Framework: tkinter
 - Additional library: pygments (for syntax highlighting)
 
----
-
 ## Project Structure
 
 ### Base Class: TextEditor
@@ -44,8 +42,6 @@ This project is an text editor developed in Python as the assessment assignment 
 - handle_events()
 - find_text()
 - highlight_syntax()
-
----
 
 ## User Stories
 
