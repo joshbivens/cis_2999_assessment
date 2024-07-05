@@ -21,28 +21,6 @@ This project is an text editor developed in Python as the assessment assignment 
 - GUI Framework: tkinter
 - Additional library: pygments (for syntax highlighting)
 
-## Project Structure
-
-### Base Class: TextEditor
-#### Fields/Properties:
-- current_file: str
-- text_content: str
-- is_modified: bool
-#### Methods:
-- new_file()
-- open_file()
-- save_file()
-- save_as()
-
-### GUI Class: EditorGUI
-#### Methods:
-- create_menu_bar()
-- create_text_area()
-- create_line_numbers()
-- handle_events()
-- find_text()
-- highlight_syntax()
-
 ## User Stories
 
 ### As a user:
@@ -65,6 +43,28 @@ This project is an text editor developed in Python as the assessment assignment 
 3. Find functionality, line numbering, text manipulation
 4. Basic syntax highlighting
 5. Testing, bug fixing, and documentation
+
+## Project Structure
+
+### Base Class: TextEditor
+#### Fields/Properties:
+- current_file: str
+- text_content: str
+- is_modified: bool
+#### Methods:
+- new_file()
+- open_file()
+- save_file()
+- save_as()
+
+### GUI Class: EditorGUI
+#### Methods:
+- create_menu_bar()
+- create_text_area()
+- create_line_numbers()
+- handle_events()
+- find_text()
+- highlight_syntax()
 
 ## Testing:
 #### TextEditor
