@@ -1,7 +1,7 @@
 # Capstone Assessment Project
 
 ### Project Overview
-This project is an text editor developed in Python as the assessment assignment in CIS 2999. It aims to provide essential text editing functionality with a simple, user-friendly interface.
+This project is an text editor developed in Python as the assessment assignment in CIS 2999.
 
 ## Objectives
 - Create a functional text editor with core features
@@ -11,15 +11,17 @@ This project is an text editor developed in Python as the assessment assignment 
 
 ## Features
 - Basic text editing (typing, deleting)
+- Advanced editing (cut/copy/paste/undo/redo)
 - File operations (new, open, save, save as)
-- Find functionality
+- Find/replace functionality
 - Line numbering
 - Syntax highlighting for Python
 
 ## Technology Stack
 - Python 3.x
-- GUI Framework: tkinter
-- Additional library: pygments (for syntax highlighting)
+- GUI Framework: [tkinter](https://docs.python.org/3/library/tkinter.html)
+- Additional library: [pygments](https://pygments.org) (for syntax highlighting)
+- Additional library: [pyperclip](https://pypi.org/project/pyperclip/) (for interacting with the system clipboard)
 
 ## User Stories
 
@@ -31,8 +33,8 @@ This project is an text editor developed in Python as the assessment assignment 
 
 ### As a developer:
 - I need to implement basic file I/O with error handling
-- I need to create a simple and functional GUI
-- I need to implement a basic find function
+- I need to create a functional GUI
+- I need to implement a basic find/replace function
 - I need to implement cut/copy/paste operations
 - I need to implement undo/redo functions
 - I need to integrate basic syntax highlighting for Python
@@ -81,7 +83,7 @@ This project is an text editor developed in Python as the assessment assignment 
 ## Future Enhancements
 - Text formatting options
 - Multiple document interface (tabs)
-- More comprehensive syntax highlighting for additional languages
+- Syntax highlighting for additional languages
 
 ## Contributing
 Contributions, issues, and feature requests are welcome. Feel free to check [issues page](link_to_issues_page) if you want to contribute.
