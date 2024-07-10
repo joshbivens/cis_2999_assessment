@@ -27,7 +27,8 @@ class EditorGUI:
         file_menu.add_command(label="New", command=self.new_file)
         file_menu.add_command(label="Save", command=self.save_file)
         file_menu.add_command(label="Save as", command=self.save_file_as)
-        # file_menu.add_separator()
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.root.quit)
 
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
