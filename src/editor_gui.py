@@ -23,8 +23,8 @@ class EditorGUI:
         # File Menu
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New", command=self.new_file)
         file_menu.add_command(label="Open", command=self.open_file)
+        file_menu.add_command(label="New", command=self.new_file)
         file_menu.add_command(label="Save", command=self.save_file)
         file_menu.add_command(label="Save as", command=self.save_file_as)
         # file_menu.add_separator()
@@ -39,6 +39,7 @@ class EditorGUI:
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
+            self.root.title(f"PyEd | {self.text_editor.current_file}")
 
     def save_file(self) -> None:
         if self.text_editor.current_file:
