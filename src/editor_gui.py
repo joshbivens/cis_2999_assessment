@@ -20,7 +20,7 @@ class EditorGUI:
         menu = tk.Menu(self.root)
         self.root.config(menu=menu)
 
-        # File Menu
+        # 1. File Menu
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Open", command=self.open_file)
@@ -39,17 +39,21 @@ class EditorGUI:
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
+
+            # TODO: Set "statusbar" label text to current file name instead
             self.root.title(f"PyEd | {self.text_editor.current_file}")
 
     def save_file(self) -> None:
         if self.text_editor.current_file:
+            self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
-            messagebox.showinfo("Info", "File saved successfully")
+            # TODO: Set "statusbar" label text to current file name + " saved"
         else:
             self.save_file_as()
 
     def save_file_as(self) -> None:
         file_path = filedialog.asksaveasfilename()
         if file_path:
+            self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
-            messagebox.showinfo("Info", "File saved successfully")
+            # TODO: Set "statusbar" label text to current file name + " saved"

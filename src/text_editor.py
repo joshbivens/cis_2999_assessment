@@ -12,5 +12,3 @@ class TextEditor:
         with open(file_path, "w", encoding="utf8") as file:
             self.current_file = file_path
             file.write(self.text_buffer)
-
-    # TODO: Now we need to write text from text_area to text_buffer 
