@@ -16,11 +16,11 @@ class EditorGUI:
         self.text_area = tk.Text(self.root)
         self.text_area.pack(expand=True, fill="both")
 
-        # Menu
+        # Menu Bar
         menu = tk.Menu(self.root)
         self.root.config(menu=menu)
 
-        # File
+        # File Menu
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=self.new_file)
