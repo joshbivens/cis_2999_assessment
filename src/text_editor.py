@@ -4,6 +4,6 @@ class TextEditor:
         self.text_buffer = ""
 
     def open_file(self, file_path: str) -> None:
-        with open(file_path, "r") as file:
+        with open(file_path, encoding="utf8") as file:
             self.current_file = file_path
             self.text_buffer = file.read()
