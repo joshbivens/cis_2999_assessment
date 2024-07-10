@@ -19,9 +19,16 @@ class EditorGUI:
         # Menu
         menu = tk.Menu(self.root)
         self.root.config(menu=menu)
+
+        # File
         file_menu = tk.Menu(menu)
         menu.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="New", command=self.new_file)
         file_menu.add_command(label="Open", command=self.open_file)
+
+    def new_file(self) -> None:
+        self.text_editor.text_buffer = ""
+        self.text_area.delete("1.0", "end")
 
     def open_file(self) -> None:
         file_path = filedialog.askopenfilename()
