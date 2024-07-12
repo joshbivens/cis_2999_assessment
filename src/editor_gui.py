@@ -24,6 +24,7 @@ class EditorGUI:
         self.root.config(menu=menu)
 
         # 1. File Menu
+        # TODO: ADD ACCELERATORS!
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Open", command=self.open_file)
@@ -45,6 +46,7 @@ class EditorGUI:
             command=self.redo,
             accelerator="Ctrl+Y")
         
+        # TODO: Might not need these?
         self.root.bind("<Control-z>", lambda e: self.undo())
         self.root.bind("<Control-y>", lambda e: self.redo())
 
