@@ -7,6 +7,9 @@ class EditorGUI:
         self.root = root
         self.text_editor = TextEditor()
         self.draw_gui()
+        
+        # Check if the text area has been modified when closing the window
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def draw_gui(self) -> None:
         self.root.title("PyEd")
@@ -28,7 +31,11 @@ class EditorGUI:
         file_menu.add_command(label="Save", command=self.save_file)
         file_menu.add_command(label="Save as", command=self.save_file_as)
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.root.quit)
+        file_menu.add_command(label="Exit", command=self.on_closing)
+
+        # 2. Edit Menu
+        edit_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Edit", menu=edit_menu)
 
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
@@ -48,6 +55,7 @@ class EditorGUI:
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
+            self.text_area.edit_modified(False)
             # TODO: Set "statusbar" label text to current file name + " saved"
         else:
             self.save_file_as()
@@ -57,4 +65,15 @@ class EditorGUI:
         if file_path:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
+            self.text_area.edit_modified(False)
             # TODO: Set "statusbar" label text to current file name + " saved"
+
+    def on_closing(self) -> None:
+        if(self.text_area.edit_modified()):
+            response = messagebox.askyesnocancel("Save changes?", "Do you want to save changes before closing?")
+            if response:
+                self.save_file()
+            elif response is None:
+                return
+            
+        self.root.destroy()
