@@ -16,7 +16,7 @@ class EditorGUI:
         self.root.geometry("800x600")
 
         # Window
-        self.text_area = tk.Text(self.root)
+        self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
 
         # Menu Bar
@@ -36,6 +36,17 @@ class EditorGUI:
         # 2. Edit Menu
         edit_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="Edit", menu=edit_menu)
+        edit_menu.add_command(
+            label="Undo", 
+            command=self.undo,
+            accelerator="Ctrl+Z")
+        edit_menu.add_command(
+            label="Redo",
+            command=self.redo,
+            accelerator="Ctrl+Y")
+        
+        self.root.bind("<Control-z>", lambda e: self.undo())
+        self.root.bind("<Control-y>", lambda e: self.redo())
 
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
@@ -70,10 +81,22 @@ class EditorGUI:
 
     def on_closing(self) -> None:
         if(self.text_area.edit_modified()):
-            response = messagebox.askyesnocancel("Save changes?", "Do you want to save changes before closing?")
+            response = messagebox.askyesnocancel(
+                "Save changes?", "Do you want to save changes before closing?")
             if response:
                 self.save_file()
             elif response is None:
-                return
-            
+                return 
         self.root.destroy()
+
+    def undo(self) -> None:
+        try:
+            self.text_area.edit_undo()
+        except tk.TclError:
+            pass
+
+    def redo(self) -> None:
+        try:
+            self.text_area.edit_redo()
+        except tk.TclError:
+            pass
