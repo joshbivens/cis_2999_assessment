@@ -24,27 +24,55 @@ class EditorGUI:
         self.root.config(menu=menu)
 
         # 1. File Menu
-        # TODO: ADD ACCELERATORS!
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="Open", command=self.open_file)
-        file_menu.add_command(label="New", command=self.new_file)
-        file_menu.add_command(label="Save", command=self.save_file)
-        file_menu.add_command(label="Save as", command=self.save_file_as)
+        file_menu.add_command(
+            label="Open", 
+            command=self.open_file, 
+            accelerator="Ctrl+O")
+        file_menu.add_command(
+            label="New", 
+            command=self.new_file, 
+            accelerator="Ctrl+N")
+        file_menu.add_command(
+            label="Save", 
+            command=self.save_file,
+            accelerator="Ctrl+S")
+        file_menu.add_command(
+            label="Save as", 
+            command=self.save_file_as,
+            accelerator="Ctrl+Shift+S")
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.on_closing)
+        file_menu.add_command(
+            label="Exit", 
+            command=self.on_closing,
+            accelerator="Ctrl+Q")
 
         # 2. Edit Menu
         edit_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="Edit", menu=edit_menu)
         edit_menu.add_command(
             label="Undo", 
-            command=self.undo,
+            command=self.text_area.event_generate("<<Undo>>"),
             accelerator="Ctrl+Z")
         edit_menu.add_command(
             label="Redo",
-            command=self.redo,
+            command=self.text_area.event_generate("<<Redo>>"),
             accelerator="Ctrl+Y")
+        edit_menu.add_separator()
+        edit_menu.add_command(
+            label="Cut",
+            command=self.text_area.event_generate("<<Cut>>"),
+            accelerator="Ctrl+X")
+        edit_menu.add_command(
+            label="Copy",
+            command=self.text_area.event_generate("<<Copy>>"),
+            accelerator="Ctrl+C")
+        edit_menu.add_command(
+            label="Paste",
+            command=self.text_area.event_generate("<<Paste>>"),
+            accelerator="Ctrl+V")
+        
         
         # TODO: Might not need these?
         self.root.bind("<Control-z>", lambda e: self.undo())
@@ -90,15 +118,3 @@ class EditorGUI:
             elif response is None:
                 return 
         self.root.destroy()
-
-    def undo(self) -> None:
-        try:
-            self.text_area.edit_undo()
-        except tk.TclError:
-            pass
-
-    def redo(self) -> None:
-        try:
-            self.text_area.edit_redo()
-        except tk.TclError:
-            pass
