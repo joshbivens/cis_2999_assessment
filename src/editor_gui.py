@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, simpledialog, messagebox
 from text_editor import TextEditor
 
 class EditorGUI:
@@ -53,31 +53,50 @@ class EditorGUI:
         menu.add_cascade(label="Edit", menu=edit_menu)
         edit_menu.add_command(
             label="Undo", 
-            command=self.text_area.event_generate("<<Undo>>"),
+            command=lambda: self.text_area.event_generate("<<Undo>>"),
             accelerator="Ctrl+Z")
         edit_menu.add_command(
             label="Redo",
-            command=self.text_area.event_generate("<<Redo>>"),
+            command=lambda: self.text_area.event_generate("<<Redo>>"),
             accelerator="Ctrl+Y")
         edit_menu.add_separator()
         edit_menu.add_command(
             label="Cut",
-            command=self.text_area.event_generate("<<Cut>>"),
+            command=lambda: self.text_area.event_generate("<<Cut>>"),
             accelerator="Ctrl+X")
         edit_menu.add_command(
             label="Copy",
-            command=self.text_area.event_generate("<<Copy>>"),
+            command=lambda: self.text_area.event_generate("<<Copy>>"),
             accelerator="Ctrl+C")
         edit_menu.add_command(
             label="Paste",
-            command=self.text_area.event_generate("<<Paste>>"),
+            command=lambda: self.text_area.event_generate("<<Paste>>"),
             accelerator="Ctrl+V")
+        edit_menu.add_command(
+            label="Select All",
+            command=lambda: self.text_area.event_generate("<<SelectAll>>"),
+            accelerator="Ctrl+A")
+        edit_menu.add_separator()
+        edit_menu.add_command(
+            label="Find",
+            command=self.find_text,
+            accelerator="Ctrl+F")
         
-        
-        # TODO: Might not need these?
+        # Bind keyboard shortcuts
+        self.root.bind("<Control-o>", lambda e: self.open_file())
+        self.root.bind("<Control-n>", lambda e: self.new_file())
+        self.root.bind("<Control-s>", lambda e: self.save_file())
+        self.root.bind("<Control-S>", lambda e: self.save_file_as())
+        self.root.bind("<Control-q>", lambda e: self.on_closing())
         self.root.bind("<Control-z>", lambda e: self.undo())
         self.root.bind("<Control-y>", lambda e: self.redo())
+        self.root.bind("<Control-x>", lambda e: self.cut())
+        self.root.bind("<Control-c>", lambda e: self.copy())
+        self.root.bind("<Control-v>", lambda e: self.paste())
+        self.root.bind("<Control-a>", lambda e: self.select_all())
+        self.root.bind("<Control-f>", lambda e: self.find_text())
 
+    # Menu functions
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
