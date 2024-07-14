@@ -137,3 +137,16 @@ class EditorGUI:
             elif response is None:
                 return 
         self.root.destroy()
+
+    def find_text(self) -> None:
+        find_string = simpledialog.askstring("Find", "Enter text to find:")
+        if find_string:
+            start_pos = self.text_area.search(find_string, '1.0', tk.END)
+            if start_pos:
+                end_pos = f"{start_pos}+{len(find_string)}c"
+                self.text_area.tag_remove('found', '1.0', tk.END)
+                self.text_area.tag_add('found', start_pos, end_pos)
+                self.text_area.tag_config('found', background='yellow')
+                self.text_area.see(start_pos)
+            else:
+                tk.messagebox.showinfo("Find", "Text not found")
