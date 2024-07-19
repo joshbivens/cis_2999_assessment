@@ -139,6 +139,6 @@ class EditorGUI:
                 return 
         self.root.destroy()
 
-    # Open Find Dialog
+    # Open Find/Replace Dialog
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
