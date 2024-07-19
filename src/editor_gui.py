@@ -38,8 +38,14 @@ class EditorGUI:
         # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
+        # Update status bar on text modification
         self.text_area.bind('<<Modified>>', self.text_modified_callback)
-        self.ignore_modified = False # Prevents opening file from setting the modified flag
+        # Update line and column on key release
+        self.text_area.bind('<KeyRelease>', self.update_line_col)
+        # Update line and column on mouse click
+        self.text_area.bind('<ButtonRelease>', self.update_line_col)
+        # Prevents triggering the modified event when opening a file
+        self.ignore_modified = False
 
         # Create status bar frame
         self.status_frame = tk.Frame(self.root)
@@ -189,14 +195,28 @@ class EditorGUI:
     # - Set the current column number
     # - Set the current word count
 
+    def update_line_col(self, event=None):
+        self.update_status()
+
+    def get_line_col(self):
+        cursor_position = self.text_area.index("insert")
+        line, col = cursor_position.split('.')
+        return int(line), int(col) + 1
+
     def update_status(self):
+        # Update file status
         if self.text_editor.current_file:
-            filename = self.text_editor.current_file.split("/")[-1]
+            filename = self.text_editor.current_file
             modified = " (modified)" if self.text_area.edit_modified() else ""
             file_status = f"{filename}{modified}"
         else:
-            file_status = "Untitled"    
+            file_status = "untitled"    
         self.file_status_var.set(file_status)
+
+        # Update position status
+        line, col = self.get_line_col()
+        line_col_pos = f"Ln {line}, Col {col}"
+        self.position_status_var.set(line_col_pos)
 
     def text_modified_callback(self, event):
         if self.text_area.edit_modified() and not self.ignore_modified:
