@@ -90,11 +90,15 @@ class FindReplaceDialog(tk.Toplevel):
         main_width = self.parent.winfo_width()
         dialog_width = self.winfo_reqwidth()
 
+        # Offset to move dialog down
+        offset_y = 20
+
         x = main_x + (main_width - dialog_width) // 2
-        y = main_y
+        y = main_y + offset_y
 
         self.geometry(f"+{x}+{y}")
 
     # Update dialog's position when parent window is moved
     def update_position(self, event):
-        self.calc_position()
+        if self.winfo_exists(): # Check if dialog is still open
+            self.calc_position()
