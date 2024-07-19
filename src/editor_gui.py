@@ -9,7 +9,10 @@ class EditorGUI:
         self.root = root
         self.text_editor = TextEditor()
         self.draw_gui()
-        
+
+        # Update status bar
+        self.update_status()
+
         # Check if the text area has been modified when closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -35,6 +38,11 @@ class EditorGUI:
         # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
+
+        # Status Bar
+        self.status_var = tk.StringVar()
+        status_bar = tk.Label(self.root, textvariable=self.status_var, anchor="w")
+        status_bar.pack(side="bottom", fill="x")
 
         # Menu Bar
         menu = tk.Menu(self.root)
@@ -128,6 +136,9 @@ class EditorGUI:
             # TODO: Set "statusbar" label text to current file name instead
             self.root.title(f"PyEd | {self.text_editor.current_file}")
 
+            # Update status bar
+            self.update_status()
+
     def save_file(self) -> None:
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
@@ -166,3 +177,7 @@ class EditorGUI:
     # - Set the current line number
     # - Set the current column number
     # - Set the current word count
+
+    def update_status(self):
+        if self.text_editor.current_file:
+            self.status_var.set(self.text_editor.current_file)
