@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog, simpledialog, messagebox
+from tkinter import filedialog
+from tkinter import messagebox
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
 
@@ -139,6 +140,14 @@ class EditorGUI:
                 return 
         self.root.destroy()
 
-    # Open Find/Replace Dialog
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
+
+
+    # TODO: Status bar functions:
+    # - Set the current file name
+    # - Set the current cursor position
+    # - Set the current selection length
+    # - Set the current line number
+    # - Set the current column number
+    # - Set the current word count

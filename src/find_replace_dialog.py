@@ -1,9 +1,11 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from tkinter import messagebox
 
 class FindReplaceDialog(tk.Toplevel):
     def __init__(self, parent, text_area):
         super().__init__(parent)
+        self.parent = parent
         self.text_area = text_area
         self.title("Find/Replace")
         self.transient(parent)
@@ -14,6 +16,14 @@ class FindReplaceDialog(tk.Toplevel):
         self.find_var = tk.StringVar()
         self.replace_var = tk.StringVar()
         self.case_sensitive_var = tk.BooleanVar()
+
+        # Set the initial dialog position.
+        # Necessary to wait for the window to be drawn before 
+        # calculating the position
+        self.after_idle(self.calc_position)
+
+        # Update position when parent window is moved
+        self.parent.bind("<Configure>", self.update_position)
 
         # Draw GUI
         self.draw_gui()
@@ -53,11 +63,10 @@ class FindReplaceDialog(tk.Toplevel):
                 end_pos = f"{start_pos}+{len(search_text)}c"
                 self.text_area.tag_remove("search", "1.0", tk.END)
                 self.text_area.tag_add("search", start_pos, end_pos)
-                self.text_area.tag_config("search", background="green", foreground="white")
+                self.text_area.tag_config("search", background="gray", foreground="white")
                 self.text_area.mark_set("insert", end_pos)
                 self.text_area.see("insert")
                 return True
-        messagebox.showinfo("Find", "No match found.")
         return False
     
     def replace(self):
@@ -73,5 +82,19 @@ class FindReplaceDialog(tk.Toplevel):
             count += 1
         tk.messagebox.showinfo("Replace All", f"Replaced {count} occurrences.")
 
-    # TODO: Make `find` modal appear in the same position in the main window and 
-    # TODO: move with the main window (geometry method?)
+    def calc_position(self):
+        # Center dialog at the top of the parent window
+        self.parent.update_idletasks() # Update parent window's geometry
+        main_x = self.parent.winfo_x()
+        main_y = self.parent.winfo_y()
+        main_width = self.parent.winfo_width()
+        dialog_width = self.winfo_reqwidth()
+
+        x = main_x + (main_width - dialog_width) // 2
+        y = main_y
+
+        self.geometry(f"+{x}+{y}")
+
+    # Update dialog's position when parent window is moved
+    def update_position(self, event):
+        self.calc_position()
