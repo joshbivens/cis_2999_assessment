@@ -38,11 +38,22 @@ class EditorGUI:
         # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
+        self.text_area.bind('<<Modified>>', self.text_modified_callback)
+        self.ignore_modified = False # Prevents opening file from setting the modified flag
 
-        # Status Bar
-        self.status_var = tk.StringVar()
-        status_bar = tk.Label(self.root, textvariable=self.status_var, anchor="w")
-        status_bar.pack(side="bottom", fill="x")
+        # Create status bar frame
+        self.status_frame = tk.Frame(self.root)
+        self.status_frame.pack(side='bottom', fill='x')
+
+        # Status Bar Left: File info
+        self.file_status_var = tk.StringVar()
+        self.file_status_label = tk.Label(self.status_frame, textvariable=self.file_status_var, anchor='w')
+        self.file_status_label.pack(side='left', fill='x', expand=True)
+        
+        # Status Bar Right: Position info
+        self.position_status_var = tk.StringVar()
+        self.position_status_label = tk.Label(self.status_frame, textvariable=self.position_status_var, anchor='e')
+        self.position_status_label.pack(side='right', padx=(0, 10))
 
         # Menu Bar
         menu = tk.Menu(self.root)
@@ -129,12 +140,12 @@ class EditorGUI:
     def open_file(self) -> None:
         file_path = filedialog.askopenfilename()
         if file_path:
+            self.ignore_modified = True
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
-
-            # TODO: Set "statusbar" label text to current file name instead
-            self.root.title(f"PyEd | {self.text_editor.current_file}")
+            self.ignore_modified = False
+            self.text_area.edit_modified(False)
 
             # Update status bar
             self.update_status()
@@ -144,7 +155,7 @@ class EditorGUI:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
             self.text_area.edit_modified(False)
-            # TODO: Set "statusbar" label text to current file name + " saved"
+            self.update_status()
         else:
             self.save_file_as()
 
@@ -154,6 +165,7 @@ class EditorGUI:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
             self.text_area.edit_modified(False)
+            self.update_status()
             # TODO: Set "statusbar" label text to current file name + " saved"
 
     def on_closing(self) -> None:
@@ -169,9 +181,8 @@ class EditorGUI:
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
 
-
     # TODO: Status bar functions:
-    # - Set the current file name
+    # - Set the current file name/modified status
     # - Set the current cursor position
     # - Set the current selection length
     # - Set the current line number
@@ -180,4 +191,16 @@ class EditorGUI:
 
     def update_status(self):
         if self.text_editor.current_file:
-            self.status_var.set(self.text_editor.current_file)
+            filename = self.text_editor.current_file.split("/")[-1]
+            modified = " (modified)" if self.text_area.edit_modified() else ""
+            file_status = f"{filename}{modified}"
+        else:
+            file_status = "Untitled"    
+        self.file_status_var.set(file_status)
+
+    def text_modified_callback(self, event):
+        if self.text_area.edit_modified() and not self.ignore_modified:
+            self.update_status()
+
+
+    # TODO: Tabs
