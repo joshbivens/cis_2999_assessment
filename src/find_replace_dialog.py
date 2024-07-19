@@ -12,6 +12,7 @@ class FindReplaceDialog(tk.Toplevel):
 
         # Variables
         self.find_var = tk.StringVar()
+        self.replace_var = tk.StringVar()
 
         # Draw GUI
         self.draw_gui()
@@ -22,16 +23,28 @@ class FindReplaceDialog(tk.Toplevel):
         ttk.Entry(self, textvariable=self.find_var).grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
         ttk.Button(self, text="Find Next", command=self.find_next).grid(row=0, column=3, sticky="w", padx=5, pady=5)
 
+        # Replace
+        ttk.Label(self, text="Replace with:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
+        ttk.Entry(self, textvariable=self.replace_var).grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
+        ttk.Button(self, text="Replace", command=self.replace).grid(row=1, column=3, sticky="w", padx=5, pady=5)
+
     def find_next(self):
         search_text = self.find_var.get()
         if search_text:
-            start_pos = self.text_area.search(search_text, self.text_area.index(tk.INSERT))
+            start_pos = self.text_area.search(search_text, self.text_area.index("insert"))
             if start_pos:
                 end_pos = f"{start_pos}+{len(search_text)}c"
                 self.text_area.tag_remove("search", "1.0", tk.END)
                 self.text_area.tag_add("search", start_pos, end_pos)
-                self.text_area.tag_config("search", background="yellow")
-                self.text_area.mark_set(tk.INSERT, end_pos)
-                self.text_area.see(tk.INSERT)
+                self.text_area.tag_config("search", background="green", foreground="white")
+                self.text_area.mark_set("insert", end_pos)
+                self.text_area.see("insert")
                 return True
+        messagebox.showinfo("Find", "No match found.")
         return False
+    
+    def replace(self):
+        current_pos = self.text_area.index("search.first")
+        self.text_area.delete("search.first", "search.last")
+        self.text_area.insert(current_pos, self.replace_var.get())
+        self.find_next()
