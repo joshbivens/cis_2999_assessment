@@ -19,14 +19,24 @@ class FindReplaceDialog(tk.Toplevel):
 
     def draw_gui(self):
         # Find
-        ttk.Label(self, text="Find:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
-        ttk.Entry(self, textvariable=self.find_var).grid(row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
-        ttk.Button(self, text="Find Next", command=self.find_next).grid(row=0, column=3, sticky="w", padx=5, pady=5)
+        ttk.Label(self, text="Find:").grid(
+            row=0, column=0, sticky="e", padx=5, pady=5)
+        ttk.Entry(self, textvariable=self.find_var).grid(
+            row=0, column=1, columnspan=2, sticky="we", padx=5, pady=5)
+        ttk.Button(self, text="Find Next", command=self.find_next).grid(
+            row=0, column=3, sticky="w", padx=5, pady=5)
 
         # Replace
-        ttk.Label(self, text="Replace with:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
-        ttk.Entry(self, textvariable=self.replace_var).grid(row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
-        ttk.Button(self, text="Replace", command=self.replace).grid(row=1, column=3, sticky="w", padx=5, pady=5)
+        ttk.Label(self, text="Replace with:").grid(
+            row=1, column=0, sticky="e", padx=5, pady=5)
+        ttk.Entry(self, textvariable=self.replace_var).grid(
+            row=1, column=1, columnspan=2, sticky="we", padx=5, pady=5)
+        ttk.Button(self, text="Replace", command=self.replace).grid(
+            row=1, column=3, sticky="w", padx=5, pady=5)
+
+        # Replace All
+        ttk.Button(self, text="Replace All", command=self.replace_all).grid(
+            row=2, column=2, columnspan=2, sticky="e", padx=5, pady=5)
 
     def find_next(self):
         search_text = self.find_var.get()
@@ -48,3 +58,10 @@ class FindReplaceDialog(tk.Toplevel):
         self.text_area.delete("search.first", "search.last")
         self.text_area.insert(current_pos, self.replace_var.get())
         self.find_next()
+
+    def replace_all(self):
+        count = 0
+        while self.find_next():
+            self.replace()
+            count += 1
+        tk.messagebox.showinfo("Replace All", f"Replaced {count} occurrences.")
