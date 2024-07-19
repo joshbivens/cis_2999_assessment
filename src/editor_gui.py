@@ -15,9 +15,24 @@ class EditorGUI:
 
     def draw_gui(self) -> None:
         self.root.title("PyEd")
-        self.root.geometry("800x600")
 
-        # Window
+        # Set the window size
+        window_width = 800
+        window_height = 600
+        self.root.geometry(f"{window_width}x{window_height}")
+
+        # Get screen width and height
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Calculate the center position
+        position_top = int(screen_height / 2 - window_height / 2)
+        position_right = int(screen_width / 2 - window_width / 2)
+
+        # Set the position of the window to the center of the screen
+        self.root.geometry(f"{window_width}x{window_height}+{position_right}+{position_top}")
+
+        # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
 
