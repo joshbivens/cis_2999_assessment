@@ -8,13 +8,20 @@ class EditorGUI:
     def __init__(self, root) -> None:
         self.root = root
         self.text_editor = TextEditor()
-        self.draw_gui()
 
-        # Update status bar
-        self.update_status()
+        # Variables
+        self.show_line_numbers = tk.IntVar()
+        self.file_status_var = tk.StringVar()
+        self.position_status_var = tk.StringVar()
 
         # Check if the text area has been modified when closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # Initialize GUI
+        self.draw_gui()
+        
+        # Update status bar
+        self.update_status()
 
     def draw_gui(self) -> None:
         self.root.title("PyEd")
@@ -35,6 +42,10 @@ class EditorGUI:
         # Set the position of the window to the center of the screen
         self.root.geometry(f"{window_width}x{window_height}+{position_right}+{position_top}")
 
+        # Line Numbers
+        self.line_numbers = tk.Text(self.root, width=3)
+        self.line_numbers.pack(side='left', fill='y')
+
         # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
@@ -52,12 +63,10 @@ class EditorGUI:
         self.status_frame.pack(side='bottom', fill='x')
 
         # Status Bar Left: File info
-        self.file_status_var = tk.StringVar()
         self.file_status_label = tk.Label(self.status_frame, textvariable=self.file_status_var, anchor='w')
         self.file_status_label.pack(side='left', fill='x', expand=True)
         
         # Status Bar Right: Position info
-        self.position_status_var = tk.StringVar()
         self.position_status_label = tk.Label(self.status_frame, textvariable=self.position_status_var, anchor='e')
         self.position_status_label.pack(side='right', padx=(0, 10))
 
@@ -124,6 +133,16 @@ class EditorGUI:
             command=self.find_text,
             accelerator="Ctrl+F")
         
+        # 3. View Menu
+        view_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label="View", menu=view_menu)
+        view_menu.add_checkbutton(
+            label="Show Line Numbers",
+            onvalue=1,
+            offvalue=0,
+            variable=self.show_line_numbers,
+            command=self.toggle_line_numbers)
+
         # Bind keyboard shortcuts
         self.root.bind("<Control-o>", lambda e: self.open_file())
         self.root.bind("<Control-n>", lambda e: self.new_file())
@@ -172,7 +191,6 @@ class EditorGUI:
             self.text_editor.save_file_as(file_path)
             self.text_area.edit_modified(False)
             self.update_status()
-            # TODO: Set "statusbar" label text to current file name + " saved"
 
     def on_closing(self) -> None:
         if(self.text_area.edit_modified()):
@@ -186,14 +204,6 @@ class EditorGUI:
 
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
-
-    # TODO: Status bar functions:
-    # - Set the current file name/modified status
-    # - Set the current cursor position
-    # - Set the current selection length
-    # - Set the current line number
-    # - Set the current column number
-    # - Set the current word count
 
     def update_line_col(self, event=None):
         self.update_status()
@@ -222,5 +232,12 @@ class EditorGUI:
         if self.text_area.edit_modified() and not self.ignore_modified:
             self.update_status()
 
+    # TODO: Line numbers
+
+    def toggle_line_numbers(self):
+        if self.show_line_numbers.get():
+            self.line_numbers.pack(side='left', fill='y')
+        else:
+            self.line_numbers.pack_forget()
 
     # TODO: Tabs
