@@ -10,7 +10,7 @@ class EditorGUI:
         self.text_editor = TextEditor()
 
         # Variables
-        self.show_line_numbers = tk.IntVar()
+        self.show_line_numbers = tk.IntVar(value=1)
         self.file_status_var = tk.StringVar()
         self.position_status_var = tk.StringVar()
 
@@ -19,7 +19,7 @@ class EditorGUI:
 
         # Initialize GUI
         self.draw_gui()
-        
+
         # Update status bar
         self.update_status()
 
@@ -44,31 +44,31 @@ class EditorGUI:
 
         # Line Numbers
         self.line_numbers = tk.Text(self.root, width=3)
-        self.line_numbers.pack(side='left', fill='y')
+        self.line_numbers.pack(side="left", fill="y")
 
         # Text Area
         self.text_area = tk.Text(self.root, undo=True)
         self.text_area.pack(expand=True, fill="both")
         # Update status bar on text modification
-        self.text_area.bind('<<Modified>>', self.text_modified_callback)
+        self.text_area.bind("<<Modified>>", self.text_modified_callback)
         # Update line and column on key release
-        self.text_area.bind('<KeyRelease>', self.update_line_col)
+        self.text_area.bind("<KeyRelease>", self.update_line_col)
         # Update line and column on mouse click
-        self.text_area.bind('<ButtonRelease>', self.update_line_col)
+        self.text_area.bind("<ButtonRelease>", self.update_line_col)
         # Prevents triggering the modified event when opening a file
         self.ignore_modified = False
 
         # Create status bar frame
         self.status_frame = tk.Frame(self.root)
-        self.status_frame.pack(side='bottom', fill='x')
+        self.status_frame.pack(side="bottom", fill="x")
 
         # Status Bar Left: File info
-        self.file_status_label = tk.Label(self.status_frame, textvariable=self.file_status_var, anchor='w')
-        self.file_status_label.pack(side='left', fill='x', expand=True)
+        self.file_status_label = tk.Label(self.status_frame, textvariable=self.file_status_var, anchor="w")
+        self.file_status_label.pack(side="left", fill="x", expand=True)
         
         # Status Bar Right: Position info
-        self.position_status_label = tk.Label(self.status_frame, textvariable=self.position_status_var, anchor='e')
-        self.position_status_label.pack(side='right', padx=(0, 10))
+        self.position_status_label = tk.Label(self.status_frame, textvariable=self.position_status_var, anchor="e")
+        self.position_status_label.pack(side="right", padx=(0, 10))
 
         # Menu Bar
         menu = tk.Menu(self.root)
@@ -175,6 +175,9 @@ class EditorGUI:
             # Update status bar
             self.update_status()
 
+            # Update line numbers
+            self.update_line_numbers()
+
     def save_file(self) -> None:
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
@@ -210,7 +213,7 @@ class EditorGUI:
 
     def get_line_col(self):
         cursor_position = self.text_area.index("insert")
-        line, col = cursor_position.split('.')
+        line, col = cursor_position.split(".")
         return int(line), int(col) + 1
 
     def update_status(self):
@@ -231,13 +234,29 @@ class EditorGUI:
     def text_modified_callback(self, event):
         if self.text_area.edit_modified() and not self.ignore_modified:
             self.update_status()
+            self.update_line_numbers()
 
     # TODO: Line numbers
-
     def toggle_line_numbers(self):
         if self.show_line_numbers.get():
-            self.line_numbers.pack(side='left', fill='y')
+            self.line_numbers.pack(side="left", fill="y")
+            self.update_line_numbers()
         else:
             self.line_numbers.pack_forget()
+
+    def update_line_numbers(self):
+        if not self.show_line_numbers.get():
+            return
+        
+        self.line_numbers.config(state="normal")
+        self.line_numbers.delete("1.0", "end")
+        
+        total_lines = self.text_area.index("end").split(".")[0]
+        line_numbers_text = "\n".join(str(i) for i in range(1, int(total_lines)))
+        self.line_numbers.tag_configure("right", justify="right")
+        self.line_numbers.insert("1.0", line_numbers_text, "right")
+        
+        self.line_numbers.config(state="disabled")
+        self.line_numbers.yview_moveto(self.text_area.yview()[0])
 
     # TODO: Tabs
