@@ -43,13 +43,21 @@ class EditorGUI:
         self.root.geometry(
             f"{window_width}x{window_height}+{position_right}+{position_top}")
 
+        # Frame for Text Area and Line Numbers
+        self.text_frame = tk.Frame(self.root)
+        self.text_frame.pack(expand=True, fill="both")
+
         # Line Numbers
-        self.line_numbers = tk.Text(self.root, width=3, fg="coral", wrap="none")
+        self.line_numbers = tk.Text(
+            self.text_frame, width=4, takefocus=0,
+            bd=0, state="disabled", cursor="arrow", fg="coral")
         self.line_numbers.pack(side="left", fill="y")
+        # Disable direct scrolling on the line numbers
+        self.line_numbers.bindtags((str(self.line_numbers), str(self.root), "all"))
 
         # Text Area
-        self.text_area = tk.Text(self.root, undo=True)
-        self.text_area.pack(expand=True, fill="both")
+        self.text_area = tk.Text(self.text_frame, undo=True)
+        self.text_area.pack(side="left", expand=True, fill="both")
         # Update status bar on text modification
         self.text_area.bind("<<Modified>>", self.text_modified_callback)
         # Update line and column on key release
@@ -58,6 +66,13 @@ class EditorGUI:
         self.text_area.bind("<ButtonRelease>", self.update_line_col)
         # Prevents triggering the modified event when opening a file
         self.ignore_modified = False
+
+        # Scrollbar/Scroll Behavior for Line Numbers
+        self.scrollbar = tk.Scrollbar(
+            self.text_frame, command=self.text_area.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.text_area.config(yscrollcommand=self.on_text_scroll)
+        self.line_numbers.config(yscrollcommand=self.scrollbar.set)
 
         # Create status bar frame
         self.status_frame = tk.Frame(self.root)
@@ -240,6 +255,14 @@ class EditorGUI:
             self.update_line_numbers()
 
     # TODO: Line numbers
+    def on_text_scroll(self, *args):
+        # Updates the scrollbar of the line numbers
+        self.scrollbar.set(*args)
+
+        # Syncs the yview of the line numbers with the text area
+        if self.show_line_numbers.get():
+            self.line_numbers.yview_moveto(args[0])
+
     def toggle_line_numbers(self):
         if self.show_line_numbers.get():
             self.line_numbers.pack(side="left", fill="y")
@@ -258,8 +281,9 @@ class EditorGUI:
         self.line_numbers.config(state="normal")
         self.line_numbers.delete("1.0", "end")
         
-        total_lines = self.text_area.index("end").split(".")[0]
-        line_numbers_text = "\n".join(str(i) for i in range(1, int(total_lines)))
+        total_lines = self.text_area.index("end-1c").split(".")[0]
+        line_numbers_text = "\n".join(
+            str(i) for i in range(1, int(total_lines) + 1))
         self.line_numbers.tag_configure("right", justify="right")
         self.line_numbers.insert("1.0", line_numbers_text, "right")
         
