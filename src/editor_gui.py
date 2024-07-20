@@ -40,10 +40,11 @@ class EditorGUI:
         position_right = int(screen_width / 2 - window_width / 2)
 
         # Set the position of the window to the center of the screen
-        self.root.geometry(f"{window_width}x{window_height}+{position_right}+{position_top}")
+        self.root.geometry(
+            f"{window_width}x{window_height}+{position_right}+{position_top}")
 
         # Line Numbers
-        self.line_numbers = tk.Text(self.root, width=3)
+        self.line_numbers = tk.Text(self.root, width=3, fg="coral", wrap="none")
         self.line_numbers.pack(side="left", fill="y")
 
         # Text Area
@@ -63,11 +64,13 @@ class EditorGUI:
         self.status_frame.pack(side="bottom", fill="x")
 
         # Status Bar Left: File info
-        self.file_status_label = tk.Label(self.status_frame, textvariable=self.file_status_var, anchor="w")
+        self.file_status_label = tk.Label(
+            self.status_frame, textvariable=self.file_status_var, anchor="w")
         self.file_status_label.pack(side="left", fill="x", expand=True)
         
         # Status Bar Right: Position info
-        self.position_status_label = tk.Label(self.status_frame, textvariable=self.position_status_var, anchor="e")
+        self.position_status_label = tk.Label(
+            self.status_frame, textvariable=self.position_status_var, anchor="e")
         self.position_status_label.pack(side="right", padx=(0, 10))
 
         # Menu Bar
@@ -243,6 +246,10 @@ class EditorGUI:
             self.update_line_numbers()
         else:
             self.line_numbers.pack_forget()
+
+        # Force a redraw of the text area
+        self.text_area.pack_forget()
+        self.text_area.pack(expand=True, fill="both")
 
     def update_line_numbers(self):
         if not self.show_line_numbers.get():
