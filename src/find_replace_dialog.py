@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
 class FindReplaceDialog(tk.Toplevel):
     def __init__(self, parent, text_area):
