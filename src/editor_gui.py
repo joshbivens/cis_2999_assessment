@@ -165,7 +165,7 @@ class EditorGUI:
             variable=self.show_line_numbers,
             command=self.toggle_line_numbers)
 
-        # Bind keyboard shortcuts
+        # Keyboard shortcuts bindings
         self.root.bind("<Control-o>", lambda e: self.open_file())
         self.root.bind("<Control-n>", lambda e: self.new_file())
         self.root.bind("<Control-s>", lambda e: self.save_file())
@@ -199,7 +199,7 @@ class EditorGUI:
 
             # Update line numbers
             self.update_line_numbers()
-            
+
             # Apply syntax highlighting
             self.text_area.highlight()
 
@@ -220,6 +220,8 @@ class EditorGUI:
             self.text_area.edit_modified(False)
             self.update_status()
 
+    # Called when window closes in modified state
+    # or when user clicks on the exit menu item
     def on_closing(self) -> None:
         if(self.text_area.edit_modified()):
             response = messagebox.askyesnocancel(
@@ -230,9 +232,11 @@ class EditorGUI:
                 return 
         self.root.destroy()
 
+    # Find and Replace
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
 
+    # Line and Column/Status 
     def update_line_col(self, event=None):
         self.update_status()
 
@@ -262,7 +266,7 @@ class EditorGUI:
             self.update_line_numbers()
             self.text_area.highlight()
 
-    # TODO: Line numbers
+    # Sync line numbers scroll with text area scroll
     def on_text_scroll(self, *args):
         # Updates the scrollbar of the line numbers
         self.scrollbar.set(*args)
@@ -271,6 +275,7 @@ class EditorGUI:
         if self.show_line_numbers.get():
             self.line_numbers.yview_moveto(args[0])
 
+    # Line Numbers
     def toggle_line_numbers(self):
         if self.show_line_numbers.get():
             self.line_numbers.pack(side="left", fill="y")
