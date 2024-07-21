@@ -3,6 +3,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
+from syntax_highlighted_text import SyntaxHighlightedText
 
 class EditorGUI:
     def __init__(self, root) -> None:
@@ -52,11 +53,11 @@ class EditorGUI:
             self.text_frame, width=4, takefocus=0,
             bd=0, state="disabled", cursor="arrow", fg="coral")
         self.line_numbers.pack(side="left", fill="y")
-        # Disable direct scrolling on the line numbers
+        # Disable direct scrolling on the line numbers widget
         self.line_numbers.bindtags((str(self.line_numbers), str(self.root), "all"))
 
         # Text Area
-        self.text_area = tk.Text(self.text_frame, undo=True)
+        self.text_area = SyntaxHighlightedText(self.text_frame, undo=True)
         self.text_area.pack(side="left", expand=True, fill="both")
         # Update status bar on text modification
         self.text_area.bind("<<Modified>>", self.text_modified_callback)
@@ -64,6 +65,9 @@ class EditorGUI:
         self.text_area.bind("<KeyRelease>", self.update_line_col)
         # Update line and column on mouse click
         self.text_area.bind("<ButtonRelease>", self.update_line_col)
+        # Bind the highlight method to key and mouse events
+        self.text_area.bind("<KeyRelease>", self.text_area.highlight)
+        self.text_area.bind("<ButtonRelease>", self.text_area.highlight)
         # Prevents triggering the modified event when opening a file
         self.ignore_modified = False
 
@@ -195,6 +199,9 @@ class EditorGUI:
 
             # Update line numbers
             self.update_line_numbers()
+            
+            # Apply syntax highlighting
+            self.text_area.highlight()
 
     def save_file(self) -> None:
         if self.text_editor.current_file:
@@ -253,6 +260,7 @@ class EditorGUI:
         if self.text_area.edit_modified() and not self.ignore_modified:
             self.update_status()
             self.update_line_numbers()
+            self.text_area.highlight()
 
     # TODO: Line numbers
     def on_text_scroll(self, *args):
@@ -289,5 +297,3 @@ class EditorGUI:
         
         self.line_numbers.config(state="disabled")
         self.line_numbers.yview_moveto(self.text_area.yview()[0])
-
-    # TODO: Tabs
