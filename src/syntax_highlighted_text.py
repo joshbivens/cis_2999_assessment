@@ -4,22 +4,39 @@ from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
 class SyntaxHighlightedText(tk.Text):
-    def __init__(self, master=None, **kwargs):
+    def __init__(self, master=None, theme="default", **kwargs):
         super().__init__(master, **kwargs)
         self.configure(font=('Consolas', 10))
-
+        self.theme = theme
         self.lexer = get_lexer_by_name("python")
-        self.style = get_style_by_name("default")
+        self.style = get_style_by_name(self.theme)
         self.setup_tags()
 
-    def setup_tags(self):
-        base_font = self.cget("font")
-        for token, style in self.style:
-            fg = self._format_color(style['color']) if 'color' in style else "#000000"
-            bg = self._format_color(style['bgcolor']) if 'bgcolor' in style else "#ffffff"
-            font = base_font + " bold" if style.get('bold') else base_font
-            self.tag_configure(str(token), foreground=fg, background=bg, font=font)
+    def change_theme(self, theme):
+        self.theme = theme
+        self.style = get_style_by_name(self.theme)
+        self.setup_tags()
+        self.highlight()
 
+    def setup_tags(self):
+        base_font = self.cget("font") # Overrides default theme font
+        for token, style in self.style:
+            # Unhandled tokens get default colors
+            fg = self._format_color(
+                style['color']) if 'color' in style else "#000000"
+            bg = self._format_color(
+                style['bgcolor']) if 'bgcolor' in style else "#ffffff"
+            font = base_font + " bold" if style.get('bold') else base_font
+            self.tag_configure(
+                str(token), foreground=fg, background=bg, font=font)
+
+        # Light/Dark theme background color    
+        bg_color = self.style.background_color
+        self.config(bg=bg_color)
+        self.config(insertbackground=self.style.highlight_color or 'white')
+
+    # Fixes an error where tkinter doesn't recognize color
+    # names without a hash
     def _format_color(self, color):
         if color and not color.startswith('#'): 
             color = f'#{color}'

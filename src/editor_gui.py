@@ -14,6 +14,7 @@ class EditorGUI:
         self.show_line_numbers = tk.IntVar(value=1)
         self.file_status_var = tk.StringVar()
         self.position_status_var = tk.StringVar()
+        self.current_theme = tk.StringVar(value="default")
 
         # Check if the text area has been modified when closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -164,6 +165,20 @@ class EditorGUI:
             offvalue=0,
             variable=self.show_line_numbers,
             command=self.toggle_line_numbers)
+        theme_menu = tk.Menu(view_menu, tearoff=0)
+        view_menu.add_cascade(label="Theme", menu=theme_menu)
+        theme_menu.add_radiobutton(
+            label="Default", variable=self.current_theme,
+            value="default", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Monkai", variable=self.current_theme,
+            value="monokai", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Solarized Light", variable=self.current_theme,
+            value="solarized-light", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Solarized Dark", variable=self.current_theme,
+            value="solarized-dark", command=self.change_theme)
 
         # Keyboard shortcuts bindings
         self.root.bind("<Control-o>", lambda e: self.open_file())
@@ -232,6 +247,14 @@ class EditorGUI:
                 return 
         self.root.destroy()
 
+    def change_theme(self) -> None:
+        self.text_area.change_theme(self.current_theme.get())
+        self.update_line_numbers_bg()
+
+    def update_line_numbers_bg(self) -> None:
+        bg_color = self.text_area.style.background_color
+        self.line_numbers.config(bg=bg_color)
+
     # Find and Replace
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
@@ -262,6 +285,7 @@ class EditorGUI:
 
     def text_modified_callback(self, event):
         if self.text_area.edit_modified() and not self.ignore_modified:
+            self.text_area.edit_modified(True)
             self.update_status()
             self.update_line_numbers()
             self.text_area.highlight()
