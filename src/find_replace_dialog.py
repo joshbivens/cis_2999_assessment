@@ -27,6 +27,7 @@ class FindReplaceDialog(tk.Toplevel):
         # Draw GUI
         self.draw_gui()
 
+    
     def draw_gui(self):
         # Find
         ttk.Label(self, text="Find:").grid(
@@ -54,6 +55,7 @@ class FindReplaceDialog(tk.Toplevel):
         ttk.Checkbutton(self, text="Case sensitive", variable=self.case_sensitive_var).grid(
             row=2, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
+    
     def find_next(self):
         search_text = self.find_var.get()
         if search_text:
@@ -69,6 +71,7 @@ class FindReplaceDialog(tk.Toplevel):
                 self.text_area.see("insert")
                 return True
         return False
+
     
     def replace(self):
         current_pos = self.text_area.index("search.first")
@@ -76,6 +79,7 @@ class FindReplaceDialog(tk.Toplevel):
         self.text_area.insert(current_pos, self.replace_var.get())
         self.find_next()
 
+    
     def replace_all(self):
         count = 0
         while self.find_next():
@@ -83,6 +87,7 @@ class FindReplaceDialog(tk.Toplevel):
             count += 1
         tk.messagebox.showinfo("Replace All", f"Replaced {count} occurrences.")
 
+    
     def calc_position(self):
         # Center dialog at the top of the parent window
         self.parent.update_idletasks() # Update parent window's geometry
@@ -99,6 +104,7 @@ class FindReplaceDialog(tk.Toplevel):
 
         self.geometry(f"+{x}+{y}")
 
+    
     # Update dialog's position when parent window is moved
     def update_position(self, event):
         if self.winfo_exists(): # Check if dialog is still open
