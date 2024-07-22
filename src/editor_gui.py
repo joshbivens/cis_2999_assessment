@@ -102,6 +102,12 @@ class EditorGUI:
         # Add the tab to the notebook
         self.notebook.add(tab_frame, text="Untitled")
 
+        # TODO: Return tab_id
+        # TODO: Add tab_id to tab dictionary
+        # TODO: When switching tabs, update status bar (involves changing a few methods)
+        # TODO: When creating a new file, create a new tab
+        # TODO: When closing a tab, remove tab_id from dictionary
+        
         
     def draw_status_bar(self) -> None:
         # Create status bar frame
@@ -228,6 +234,7 @@ class EditorGUI:
         self.text_area.delete("1.0", "end")
         self.text_area.edit_modified(False)
         self.update_status()
+        self.create_new_tab()
 
 
     def open_file(self) -> None:
