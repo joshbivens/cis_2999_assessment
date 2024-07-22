@@ -1,5 +1,8 @@
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tkinter import ttk
+from tkinter import font
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
 from syntax_highlighted_text import SyntaxHighlightedText
@@ -25,6 +28,7 @@ class EditorGUI:
         # Update status bar
         self.update_status()
 
+
     def draw_gui(self) -> None:
         self.root.title("PyEd")
 
@@ -45,41 +49,61 @@ class EditorGUI:
         self.root.geometry(
             f"{window_width}x{window_height}+{position_right}+{position_top}")
 
-        # Frame for Text Area and Line Numbers
+        # Frame for tabs
         self.text_frame = tk.Frame(self.root)
         self.text_frame.pack(expand=True, fill="both")
 
-        # Line Numbers
-        self.line_numbers = tk.Text(
-            self.text_frame, width=4, takefocus=0,
-            bd=0, state="disabled", cursor="arrow", fg="coral")
-        self.line_numbers.pack(side="left", fill="y")
-        # Disable direct scrolling on the line numbers widget
-        self.line_numbers.bindtags((str(self.line_numbers), str(self.root), "all"))
-
-        # Text Area
-        self.text_area = SyntaxHighlightedText(self.text_frame, undo=True)
-        self.text_area.pack(side="left", expand=True, fill="both")
-        self.text_area.focus_set()
-        # Update/update status bar on text modification
-        self.text_area.bind("<<Modified>>", self.text_modified_callback)
-        # Update line and column on key release
-        self.text_area.bind("<KeyRelease>", self.update_status)
-        # Update line and column on mouse click
-        self.text_area.bind("<ButtonRelease>", self.update_status)
-        # Bind the highlight method to key and mouse events
-        #self.text_area.bind("<KeyRelease>", self.text_area.highlight)
-        #self.text_area.bind("<ButtonRelease>", self.text_area.highlight)
-        # Prevents triggering the modified event when opening a file
+        # Was using to not flip the edit_modified flag,
+        # but I don't know anymore
         self.ignore_modified = False
 
-        # Scrollbar/Scroll Behavior for Line Numbers
-        self.scrollbar = tk.Scrollbar(
-            self.text_frame, command=self.text_area.yview)
+        # Initialize Notebook
+        self.notebook = ttk.Notebook(self.text_frame)
+        self.notebook.pack(fill=tk.BOTH, expand=1)
+
+        # Create a new tab
+        self.create_new_tab()
+
+        # Draw the menu/status bar
+        self.draw_menu()
+        self.draw_status_bar()
+
+
+    def create_new_tab(self):
+        # Create a new frame for the tab
+        tab_frame = tk.Frame(self.notebook)
+        tab_frame.pack(expand=True, fill="both")
+
+        # Create a new line numbers area
+        self.line_numbers = tk.Text(
+            tab_frame, width=4, takefocus=0, border=0,
+            state="disabled", wrap="none", fg="coral")
+        self.line_numbers.pack(side="left", fill="y")
+        self.line_numbers.config(font=('Consolas', 10))
+
+        # Create a new text area
+        self.text_area = SyntaxHighlightedText(tab_frame, undo=True)
+        self.text_area.bind("<<Modified>>", self.text_modified_callback)
+        self.text_area.pack(side="left", expand=True, fill="both")
+
+        # Set tabs to 4 spaces
+        font = tk.font.Font(font=self.text_area["font"])
+        tab = font.measure('    ')
+        self.text_area.config(tabs=tab)
+
+        # Create a scrollbar
+        self.scrollbar = tk.Scrollbar(tab_frame, command=self.on_text_scroll)
         self.scrollbar.pack(side="right", fill="y")
+
+        # Configure the text area and line numbers to use the scrollbar
         self.text_area.config(yscrollcommand=self.on_text_scroll)
         self.line_numbers.config(yscrollcommand=self.scrollbar.set)
 
+        # Add the tab to the notebook
+        self.notebook.add(tab_frame, text="Untitled")
+
+        
+    def draw_status_bar(self) -> None:
         # Create status bar frame
         self.status_frame = tk.Frame(self.root)
         self.status_frame.pack(side="bottom", fill="x")
@@ -94,6 +118,8 @@ class EditorGUI:
             self.status_frame, textvariable=self.position_status_var, anchor="e")
         self.position_status_label.pack(side="right", padx=(0, 10))
 
+
+    def draw_menu(self) -> None:
         # Menu Bar
         menu = tk.Menu(self.root)
         self.root.config(menu=menu)
@@ -195,12 +221,14 @@ class EditorGUI:
         self.root.bind("<Control-a>", lambda e: self.select_all())
         self.root.bind("<Control-f>", lambda e: self.find_text())
 
+
     # Menu functions
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
         self.text_area.edit_modified(False)
         self.update_status()
+
 
     def open_file(self) -> None:
         file_path = filedialog.askopenfilename()
@@ -217,6 +245,7 @@ class EditorGUI:
             self.text_area.highlight()
             self.text_area.focus_set()
 
+
     def save_file(self) -> None:
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
@@ -226,13 +255,15 @@ class EditorGUI:
         else:
             self.save_file_as()
 
+
     def save_file_as(self) -> None:
-        file_path = filedialog.asksaveasfilename()
+        file_path = filedialog.asksaveasfilename(defaultextension=".py", filetypes=[("All Files", "*.*")])
         if file_path:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
             self.text_area.edit_modified(False)
             self.update_status()
+
 
     # Called when window attempts to close in modified state
     # or when user clicks on the exit menu item
@@ -247,6 +278,7 @@ class EditorGUI:
                 return 
         self.root.destroy()
 
+
     def text_modified_callback(self, event=None) -> None:
         print("Text modified callback triggered OUTSIDE")
         if not self.ignore_modified:
@@ -257,26 +289,32 @@ class EditorGUI:
             # Reset modified flag
             self.text_area.edit_modified(False)
 
+
     def change_theme(self) -> None:
         self.text_area.change_theme(self.current_theme.get())
         self.update_line_numbers_bg()
+
 
     def update_line_numbers_bg(self) -> None:
         bg_color = self.text_area.style.background_color
         self.line_numbers.config(bg=bg_color)
 
+
     # Find and Replace
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
+
 
     def get_line_col(self):
         cursor_position = self.text_area.index("insert")
         line, col = cursor_position.split(".")
         return int(line), int(col) + 1
+    
 
     def update_status(self, event=None):
+        filename = self.text_editor.current_file
         # Update file status
-        if self.text_editor.current_file:
+        if filename:
             filename = self.text_editor.current_file
             modified = " (modified)" if self.text_area.edit_modified() else ""
             file_status = f"{filename}{modified}"
@@ -289,14 +327,17 @@ class EditorGUI:
         line_col_pos = f"Ln {line}, Col {col}"
         self.position_status_var.set(line_col_pos)
 
-    # Sync line numbers scroll with text area scroll
-    def on_text_scroll(self, *args):
-        # Updates the scrollbar of the line numbers
-        self.scrollbar.set(*args)
+        # Update tab title
+        tab_title = os.path.basename(filename) if filename else "Untitled"
+        self.notebook.tab(
+            self.notebook.select(), text=tab_title)
+        
 
-        # Syncs the yview of the line numbers with the text area
-        if self.show_line_numbers.get():
-            self.line_numbers.yview_moveto(args[0])
+    def on_text_scroll(self, *args):
+        # Synchronize the scrollbar with text_area and line_numbers
+        self.text_area.yview_moveto(args[0])
+        self.line_numbers.yview_moveto(args[0])
+
 
     # Line Numbers
     def toggle_line_numbers(self):
@@ -309,6 +350,7 @@ class EditorGUI:
         # Force a redraw of the text area
         self.text_area.pack_forget()
         self.text_area.pack(expand=True, fill="both")
+
 
     def update_line_numbers(self):
         if not self.show_line_numbers.get():

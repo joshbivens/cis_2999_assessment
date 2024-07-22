@@ -8,9 +8,12 @@ class SyntaxHighlightedText(tk.Text):
         super().__init__(master, **kwargs)
         self.configure(font=('Consolas', 10))
         self.theme = theme
+
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
+
         self.highlighting = False
+
         self.setup_tags()
     
     def change_theme(self, theme):
