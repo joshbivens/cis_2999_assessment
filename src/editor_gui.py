@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
 from syntax_highlighted_text import SyntaxHighlightedText
@@ -15,6 +14,7 @@ class EditorGUI:
         self.file_status_var = tk.StringVar()
         self.position_status_var = tk.StringVar()
         self.current_theme = tk.StringVar(value="default")
+        self.ignore_modified = False
 
         # Check if the text area has been modified when closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -64,12 +64,12 @@ class EditorGUI:
         # Update/update status bar on text modification
         self.text_area.bind("<<Modified>>", self.text_modified_callback)
         # Update line and column on key release
-        self.text_area.bind("<KeyRelease>", self.update_line_col)
+        self.text_area.bind("<KeyRelease>", self.update_status)
         # Update line and column on mouse click
-        self.text_area.bind("<ButtonRelease>", self.update_line_col)
+        self.text_area.bind("<ButtonRelease>", self.update_status)
         # Bind the highlight method to key and mouse events
-        self.text_area.bind("<KeyRelease>", self.text_area.highlight)
-        self.text_area.bind("<ButtonRelease>", self.text_area.highlight)
+        #self.text_area.bind("<KeyRelease>", self.text_area.highlight)
+        #self.text_area.bind("<ButtonRelease>", self.text_area.highlight)
         # Prevents triggering the modified event when opening a file
         self.ignore_modified = False
 
@@ -205,12 +205,12 @@ class EditorGUI:
     def open_file(self) -> None:
         file_path = filedialog.askopenfilename()
         if file_path:
-            self.ignore_modified = True
+            # self.ignore_modified = True
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
             self.text_area.edit_modified(False)
-            self.ignore_modified = False
+            # self.ignore_modified = False
 
             self.update_status()
             self.update_line_numbers()
@@ -246,19 +246,16 @@ class EditorGUI:
             elif response is None:
                 return 
         self.root.destroy()
- 
-    def text_modified_callback(self, event):
-        if self.text_area.edit_modified() and not self.ignore_modified:
-            # self.ignore_modified = True
+
+    def text_modified_callback(self, event=None) -> None:
+        print("Text modified callback triggered OUTSIDE")
+        if not self.ignore_modified:
+            print("Text modified callback triggered")
             self.update_status()
             self.update_line_numbers()
             self.text_area.highlight()
-            print("Text modified callback triggered")
-
-        # Reset modified flag
-        self.text_area.edit_modified(False)
-        # self.ignore_modified = False
-        
+            # Reset modified flag
+            self.text_area.edit_modified(False)
 
     def change_theme(self) -> None:
         self.text_area.change_theme(self.current_theme.get())
@@ -272,16 +269,12 @@ class EditorGUI:
     def find_text(self, event=None):
         FindReplaceDialog(self.root, self.text_area)
 
-    # Line and Column/Status 
-    def update_line_col(self, event=None):
-        self.update_status()
-
     def get_line_col(self):
         cursor_position = self.text_area.index("insert")
         line, col = cursor_position.split(".")
         return int(line), int(col) + 1
 
-    def update_status(self):
+    def update_status(self, event=None):
         # Update file status
         if self.text_editor.current_file:
             filename = self.text_editor.current_file

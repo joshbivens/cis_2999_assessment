@@ -10,6 +10,7 @@ class SyntaxHighlightedText(tk.Text):
         self.theme = theme
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
+        self.highlighting = False
         self.setup_tags()
     
     def change_theme(self, theme):
@@ -42,6 +43,12 @@ class SyntaxHighlightedText(tk.Text):
         return color
 
     def highlight(self, event=None):
+        if self.highlighting:
+            return
+        self.highlighting = True
+
+        print("highlight called")
+
         content = self.get("1.0", "end-1c")
         self.mark_set("range_start", "1.0")
 
@@ -52,3 +59,6 @@ class SyntaxHighlightedText(tk.Text):
             self.mark_set("range_end", f"range_start + {len(content)}c")
             self.tag_add(str(token), "range_start", "range_end")
             self.mark_set("range_start", "range_end")
+
+        self.edit_modified(False)
+        self.highlighting = False
