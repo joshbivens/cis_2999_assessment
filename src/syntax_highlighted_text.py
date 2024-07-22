@@ -25,9 +25,9 @@ class SyntaxHighlightedText(tk.Text):
         base_font = self.cget("font") # Overrides default theme font
         for token, style in self.style:
             # Unhandled tokens get default colors
-            fg = self._format_color(
+            fg = self.format_color(
                 style['color']) if 'color' in style else "#000000"
-            bg = self._format_color(
+            bg = self.format_color(
                 style['bgcolor']) if 'bgcolor' in style else "#ffffff"
             font = base_font + " bold" if style.get('bold') else base_font
             self.tag_configure(
