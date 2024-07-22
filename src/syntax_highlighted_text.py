@@ -8,12 +8,9 @@ class SyntaxHighlightedText(tk.Text):
         super().__init__(master, **kwargs)
         self.configure(font=('Consolas', 10))
         self.theme = theme
-
+        self.highlighting = False
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
-
-        self.highlighting = False
-
         self.setup_tags()
     
     def change_theme(self, theme):
@@ -40,7 +37,7 @@ class SyntaxHighlightedText(tk.Text):
 
     # Fixes an error where tkinter doesn't recognize color
     # names without a hash
-    def _format_color(self, color):
+    def format_color(self, color):
         if color and not color.startswith('#'): 
             color = f'#{color}'
         return color
@@ -49,8 +46,6 @@ class SyntaxHighlightedText(tk.Text):
         if self.highlighting:
             return
         self.highlighting = True
-
-        print("highlight called")
 
         content = self.get("1.0", "end-1c")
         self.mark_set("range_start", "1.0")
