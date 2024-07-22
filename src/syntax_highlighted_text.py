@@ -12,6 +12,7 @@ class SyntaxHighlightedText(tk.Text):
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
         self.setup_tags()
+
     
     def change_theme(self, theme):
         self.theme = theme
@@ -19,6 +20,7 @@ class SyntaxHighlightedText(tk.Text):
         self.setup_tags()
         self.highlight()
 
+    
     def setup_tags(self):
         base_font = self.cget("font") # Overrides default theme font
         for token, style in self.style:
@@ -35,6 +37,7 @@ class SyntaxHighlightedText(tk.Text):
         bg_color = self.style.background_color
         self.config(bg=bg_color)
 
+    
     # Fixes an error where tkinter doesn't recognize color
     # names without a hash
     def format_color(self, color):
@@ -42,6 +45,7 @@ class SyntaxHighlightedText(tk.Text):
             color = f'#{color}'
         return color
 
+    
     def highlight(self, event=None):
         if self.highlighting:
             return
