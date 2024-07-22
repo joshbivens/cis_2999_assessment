@@ -1,3 +1,9 @@
+"""EditorGUI module for PyEd text editor.
+
+This module provides the EditorGUI class that creates the main text editor
+window and handles the GUI elements of the text editor.
+"""
+
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -9,6 +15,11 @@ from syntax_highlighted_text import SyntaxHighlightedText
 
 class EditorGUI:
     def __init__(self, root) -> None:
+        """__init__ method for EditorGUI class.
+
+        Args:
+            root (tk.Tk): The root window of the text editor.
+        """
         self.root = root
         self.text_editor = TextEditor()
 
@@ -30,6 +41,7 @@ class EditorGUI:
 
 
     def draw_gui(self) -> None:
+        """Draws the GUI for the text editor."""
         self.root.title("PyEd")
 
         # Set the window size
@@ -70,6 +82,8 @@ class EditorGUI:
 
 
     def create_new_tab(self):
+        """Creates a new tab in the text editor."""
+
         # Create a new frame for the tab
         tab_frame = tk.Frame(self.notebook)
         tab_frame.pack(expand=True, fill="both")
@@ -107,9 +121,10 @@ class EditorGUI:
         # TODO: When switching tabs, update status bar (involves changing a few methods)
         # TODO: When creating a new file, create a new tab
         # TODO: When closing a tab, remove tab_id from dictionary
-        
+
         
     def draw_status_bar(self) -> None:
+        """Draws the status bar for the text editor."""
         # Create status bar frame
         self.status_frame = tk.Frame(self.root)
         self.status_frame.pack(side="bottom", fill="x")
@@ -126,6 +141,7 @@ class EditorGUI:
 
 
     def draw_menu(self) -> None:
+        """Draws the menu bar for the text editor."""
         # Menu Bar
         menu = tk.Menu(self.root)
         self.root.config(menu=menu)
@@ -230,6 +246,7 @@ class EditorGUI:
 
     # Menu functions
     def new_file(self) -> None:
+        """Creates a new file in the text editor."""
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
         self.text_area.edit_modified(False)
@@ -238,6 +255,7 @@ class EditorGUI:
 
 
     def open_file(self) -> None:
+        """Opens a file in the text editor."""
         file_path = filedialog.askopenfilename()
         if file_path:
             # self.ignore_modified = True
@@ -254,6 +272,7 @@ class EditorGUI:
 
 
     def save_file(self) -> None:
+        """Saves the current file in the text editor."""
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
@@ -264,6 +283,7 @@ class EditorGUI:
 
 
     def save_file_as(self) -> None:
+        """Saves the current file as a new file in the text editor."""
         file_path = filedialog.asksaveasfilename(defaultextension=".py", filetypes=[("All Files", "*.*")])
         if file_path:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
@@ -275,6 +295,7 @@ class EditorGUI:
     # Called when window attempts to close in modified state
     # or when user clicks on the exit menu item
     def on_closing(self) -> None:
+        """Called when the window is closing."""
         print("on_closing called")
         if self.text_area.edit_modified():
             response = messagebox.askyesnocancel(
@@ -287,6 +308,11 @@ class EditorGUI:
 
 
     def text_modified_callback(self, event=None) -> None:
+        """Called when the text area is modified.
+        
+        Args:
+            event (tk.Event): The event that triggered the callback.
+        """
         print("Text modified callback triggered OUTSIDE")
         if not self.ignore_modified:
             print("Text modified callback triggered")
@@ -298,27 +324,40 @@ class EditorGUI:
 
 
     def change_theme(self) -> None:
+        """Changes the theme of the text editor."""
         self.text_area.change_theme(self.current_theme.get())
         self.update_line_numbers_bg()
 
 
     def update_line_numbers_bg(self) -> None:
+        """Updates the background color of the line numbers."""
         bg_color = self.text_area.style.background_color
         self.line_numbers.config(bg=bg_color)
 
 
     # Find and Replace
     def find_text(self, event=None):
+        """Calls FindReplaceDialog module.
+        
+        Args:
+            event (tk.Event): The event that triggered the callback
+        """
         FindReplaceDialog(self.root, self.text_area)
 
 
     def get_line_col(self):
+        """Returns the current line and column of the cursor."""
         cursor_position = self.text_area.index("insert")
         line, col = cursor_position.split(".")
         return int(line), int(col) + 1
     
 
     def update_status(self, event=None):
+        """Updates the status bar.
+        
+        Args:
+            event (tk.Event): The event that triggered the callback
+        """
         filename = self.text_editor.current_file
         # Update file status
         if filename:
@@ -341,13 +380,17 @@ class EditorGUI:
         
 
     def on_text_scroll(self, *args):
-        # Synchronize the scrollbar with text_area and line_numbers
-        self.text_area.yview_moveto(args[0])
+        """Synchronize the scrollbar with text_area and line_numbers.
+        
+        Args:
+            *args: The arguments passed to the callback
+        """
         self.line_numbers.yview_moveto(args[0])
 
 
     # Line Numbers
     def toggle_line_numbers(self):
+        """Toggles the line numbers."""
         if self.show_line_numbers.get():
             self.line_numbers.pack(side="left", fill="y")
             self.update_line_numbers()
@@ -360,6 +403,7 @@ class EditorGUI:
 
 
     def update_line_numbers(self):
+        """Updates the line numbers."""
         if not self.show_line_numbers.get():
             return
         

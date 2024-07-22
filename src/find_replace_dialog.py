@@ -1,8 +1,22 @@
+"""FindReplaceDialog module for the PyEd text editor application.
+
+This module provides a FindReplaceDialog class that subclasses tk.Toplevel
+to provide a find and replace dialog for the PyEd text editor application.
+The dialog allows users to search for text in the text area and replace it
+with other text.
+"""
+
 import tkinter as tk
 from tkinter import ttk
 
 class FindReplaceDialog(tk.Toplevel):
     def __init__(self, parent, text_area):
+        """__init__ method for FindReplaceDialog class.
+
+        Args:
+            parent (tk.Tk): The root window of the application.
+            text_area (SyntaxHighlightedText): The text area to search and replace text.
+        """
         super().__init__(parent)
         self.parent = parent
         self.text_area = text_area
@@ -29,6 +43,7 @@ class FindReplaceDialog(tk.Toplevel):
 
     
     def draw_gui(self):
+        """Draw the GUI for the Find/Replace dialog."""
         # Find
         ttk.Label(self, text="Find:").grid(
             row=0, column=0, sticky="w", padx=5, pady=5)
@@ -57,6 +72,7 @@ class FindReplaceDialog(tk.Toplevel):
 
     
     def find_next(self):
+        """Find the next occurrence of the search text."""
         search_text = self.find_var.get()
         if search_text:
             start_pos = self.text_area.search(
@@ -74,6 +90,7 @@ class FindReplaceDialog(tk.Toplevel):
 
     
     def replace(self):
+        """Replace the current occurrence of the search text with the replace text."""
         current_pos = self.text_area.index("search.first")
         self.text_area.delete("search.first", "search.last")
         self.text_area.insert(current_pos, self.replace_var.get())
@@ -81,6 +98,7 @@ class FindReplaceDialog(tk.Toplevel):
 
     
     def replace_all(self):
+        """Replace all occurrences of the search text with the replace text."""
         count = 0
         while self.find_next():
             self.replace()
@@ -89,6 +107,7 @@ class FindReplaceDialog(tk.Toplevel):
 
     
     def calc_position(self):
+        """Calculate the position of the dialog relative to the parent window."""
         # Center dialog at the top of the parent window
         self.parent.update_idletasks() # Update parent window's geometry
         main_x = self.parent.winfo_x()
@@ -107,5 +126,6 @@ class FindReplaceDialog(tk.Toplevel):
     
     # Update dialog's position when parent window is moved
     def update_position(self, event):
+        """Update the position of the dialog when the parent window is moved."""
         if self.winfo_exists(): # Check if dialog is still open
             self.calc_position()
