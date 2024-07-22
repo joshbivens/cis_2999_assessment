@@ -11,7 +11,7 @@ class SyntaxHighlightedText(tk.Text):
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
         self.setup_tags()
-
+    
     def change_theme(self, theme):
         self.theme = theme
         self.style = get_style_by_name(self.theme)
@@ -33,7 +33,6 @@ class SyntaxHighlightedText(tk.Text):
         # Light/Dark theme background color    
         bg_color = self.style.background_color
         self.config(bg=bg_color)
-        self.config(insertbackground=self.style.highlight_color or 'white')
 
     # Fixes an error where tkinter doesn't recognize color
     # names without a hash
@@ -53,5 +52,3 @@ class SyntaxHighlightedText(tk.Text):
             self.mark_set("range_end", f"range_start + {len(content)}c")
             self.tag_add(str(token), "range_start", "range_end")
             self.mark_set("range_start", "range_end")
-
-        self.edit_modified(False)

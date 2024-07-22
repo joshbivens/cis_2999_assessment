@@ -60,7 +60,8 @@ class EditorGUI:
         # Text Area
         self.text_area = SyntaxHighlightedText(self.text_frame, undo=True)
         self.text_area.pack(side="left", expand=True, fill="both")
-        # Update status bar on text modification
+        self.text_area.focus_set()
+        # Update/update status bar on text modification
         self.text_area.bind("<<Modified>>", self.text_modified_callback)
         # Update line and column on key release
         self.text_area.bind("<KeyRelease>", self.update_line_col)
@@ -198,6 +199,8 @@ class EditorGUI:
     def new_file(self) -> None:
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
+        self.text_area.edit_modified(False)
+        self.update_status()
 
     def open_file(self) -> None:
         file_path = filedialog.askopenfilename()
@@ -206,17 +209,13 @@ class EditorGUI:
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
-            self.ignore_modified = False
             self.text_area.edit_modified(False)
+            self.ignore_modified = False
 
-            # Update status bar
             self.update_status()
-
-            # Update line numbers
             self.update_line_numbers()
-
-            # Apply syntax highlighting
             self.text_area.highlight()
+            self.text_area.focus_set()
 
     def save_file(self) -> None:
         if self.text_editor.current_file:
@@ -235,10 +234,11 @@ class EditorGUI:
             self.text_area.edit_modified(False)
             self.update_status()
 
-    # Called when window closes in modified state
+    # Called when window attempts to close in modified state
     # or when user clicks on the exit menu item
     def on_closing(self) -> None:
-        if(self.text_area.edit_modified()):
+        print("on_closing called")
+        if self.text_area.edit_modified():
             response = messagebox.askyesnocancel(
                 "Save changes?", "Do you want to save changes before closing?")
             if response:
@@ -246,6 +246,19 @@ class EditorGUI:
             elif response is None:
                 return 
         self.root.destroy()
+ 
+    def text_modified_callback(self, event):
+        if self.text_area.edit_modified() and not self.ignore_modified:
+            # self.ignore_modified = True
+            self.update_status()
+            self.update_line_numbers()
+            self.text_area.highlight()
+            print("Text modified callback triggered")
+
+        # Reset modified flag
+        self.text_area.edit_modified(False)
+        # self.ignore_modified = False
+        
 
     def change_theme(self) -> None:
         self.text_area.change_theme(self.current_theme.get())
@@ -283,13 +296,6 @@ class EditorGUI:
         line_col_pos = f"Ln {line}, Col {col}"
         self.position_status_var.set(line_col_pos)
 
-    def text_modified_callback(self, event):
-        if self.text_area.edit_modified() and not self.ignore_modified:
-            self.text_area.edit_modified(True)
-            self.update_status()
-            self.update_line_numbers()
-            self.text_area.highlight()
-
     # Sync line numbers scroll with text area scroll
     def on_text_scroll(self, *args):
         # Updates the scrollbar of the line numbers
@@ -326,3 +332,4 @@ class EditorGUI:
         
         self.line_numbers.config(state="disabled")
         self.line_numbers.yview_moveto(self.text_area.yview()[0])
+
