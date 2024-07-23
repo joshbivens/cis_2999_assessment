@@ -7,7 +7,6 @@ window and handles the GUI elements of the text editor.
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from tkinter import ttk
 from tkinter import font
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
@@ -61,7 +60,7 @@ class EditorGUI:
         self.root.geometry(
             f"{window_width}x{window_height}+{position_right}+{position_top}")
 
-        # Frame for tabs
+        # Frame for test area and line numbers
         self.text_frame = tk.Frame(self.root)
         self.text_frame.pack(expand=True, fill="both")
 
@@ -69,34 +68,15 @@ class EditorGUI:
         # but I don't know anymore
         self.ignore_modified = False
 
-        # Initialize Notebook
-        self.notebook = ttk.Notebook(self.text_frame)
-        self.notebook.pack(fill=tk.BOTH, expand=1)
-
-        # Create a new tab
-        self.create_new_tab()
-
-        # Draw the menu/status bar
-        self.draw_menu()
-        self.draw_status_bar()
-
-
-    def create_new_tab(self):
-        """Creates a new tab in the text editor."""
-
-        # Create a new frame for the tab
-        tab_frame = tk.Frame(self.notebook)
-        tab_frame.pack(expand=True, fill="both")
-
         # Create a new line numbers area
         self.line_numbers = tk.Text(
-            tab_frame, width=4, takefocus=0, border=0,
+            self.text_frame, width=4, takefocus=0, border=0,
             state="disabled", wrap="none", fg="coral")
         self.line_numbers.pack(side="left", fill="y")
         self.line_numbers.config(font=('Consolas', 10))
 
         # Create a new text area
-        self.text_area = SyntaxHighlightedText(tab_frame, undo=True)
+        self.text_area = SyntaxHighlightedText(self.text_frame, undo=True)
         self.text_area.bind("<<Modified>>", self.text_modified_callback)
         self.text_area.pack(side="left", expand=True, fill="both")
 
@@ -106,15 +86,16 @@ class EditorGUI:
         self.text_area.config(tabs=tab)
 
         # Create a scrollbar
-        self.scrollbar = tk.Scrollbar(tab_frame, command=self.on_text_scroll)
+        self.scrollbar = tk.Scrollbar(self.text_frame, command=self.on_text_scroll)
         self.scrollbar.pack(side="right", fill="y")
 
         # Configure the text area and line numbers to use the scrollbar
         self.text_area.config(yscrollcommand=self.on_text_scroll)
         self.line_numbers.config(yscrollcommand=self.scrollbar.set)
 
-        # Add the tab to the notebook
-        self.notebook.add(tab_frame, text="Untitled")
+        # Draw the menu/status bar
+        self.draw_menu()
+        self.draw_status_bar()
 
         
     def draw_status_bar(self) -> None:
@@ -395,11 +376,6 @@ class EditorGUI:
         line, col = self.get_line_col()
         line_col_pos = f"Ln {line}, Col {col}"
         self.position_status_var.set(line_col_pos)
-
-        # Update tab title
-        tab_title = os.path.basename(filename) if filename else "Untitled"
-        self.notebook.tab(
-            self.notebook.select(), text=tab_title)
         
 
     def on_text_scroll(self, *args):
