@@ -116,12 +116,6 @@ class EditorGUI:
         # Add the tab to the notebook
         self.notebook.add(tab_frame, text="Untitled")
 
-        # TODO: Return tab_id
-        # TODO: Add tab_id to tab dictionary
-        # TODO: When switching tabs, update status bar (involves changing a few methods)
-        # TODO: When creating a new file, create a new tab
-        # TODO: When closing a tab, remove tab_id from dictionary
-
         
     def draw_status_bar(self) -> None:
         """Draws the status bar for the text editor."""
@@ -170,6 +164,13 @@ class EditorGUI:
             label="Exit", 
             command=self.on_closing,
             accelerator="Ctrl+Q")
+        
+        # File menu key bindings
+        self.root.bind("<Control-o>", lambda e: self.open_file())
+        self.root.bind("<Control-n>", lambda e: self.new_file())
+        self.root.bind("<Control-s>", lambda e: self.save_file())
+        self.root.bind("<Control-S>", lambda e: self.save_file_as())
+        self.root.bind("<Control-q>", lambda e: self.on_closing())
 
         # 2. Edit Menu
         edit_menu = tk.Menu(menu, tearoff=0)
@@ -205,6 +206,15 @@ class EditorGUI:
             command=self.find_text,
             accelerator="Ctrl+F")
         
+        # Edit menu key bindings
+        self.root.bind("<Control-z>", lambda e: self.text_area.event_generate("<<Undo>>"))
+        self.root.bind("<Control-y>", lambda e: self.text_area.event_generate("<<Redo>>"))
+        self.root.bind("<Control-x>", lambda e: self.text_area.event_generate("<<Cut>>"))
+        self.root.bind("<Control-c>", lambda e: self.text_area.event_generate("<<Copy>>"))
+        self.root.bind("<Control-v>", lambda e: self.text_area.event_generate("<<Paste>>"))
+        self.root.bind("<Control-a>", lambda e: self.text_area.event_generate("<<SelectAll>>"))
+        self.root.bind("<Control-f>", lambda e: self.find_text())
+        
         # 3. View Menu
         view_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="View", menu=view_menu)
@@ -214,34 +224,47 @@ class EditorGUI:
             offvalue=0,
             variable=self.show_line_numbers,
             command=self.toggle_line_numbers)
+        
+        # Toggle line numbers key binding
+        self.root.bind("<Control-l>", lambda e: self.toggle_line_numbers())
+        
         theme_menu = tk.Menu(view_menu, tearoff=0)
         view_menu.add_cascade(label="Theme", menu=theme_menu)
+
+        # Light Themes
+        theme_menu.add_command(label="Light", state="disabled")
+        theme_menu.add_separator()
+
         theme_menu.add_radiobutton(
             label="Default", variable=self.current_theme,
             value="default", command=self.change_theme)
         theme_menu.add_radiobutton(
-            label="Monkai", variable=self.current_theme,
-            value="monokai", command=self.change_theme)
-        theme_menu.add_radiobutton(
             label="Solarized Light", variable=self.current_theme,
             value="solarized-light", command=self.change_theme)
         theme_menu.add_radiobutton(
+            label="Paraiso Light", variable=self.current_theme,
+            value="paraiso-light", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Igor", variable=self.current_theme,
+            value="igor", command=self.change_theme)
+
+        # Dark Theme
+        theme_menu.add_command(label="")
+        theme_menu.add_command(label="Dark", state="disabled")
+        theme_menu.add_separator()
+
+        theme_menu.add_radiobutton(
+            label="Monkai", variable=self.current_theme,
+            value="monokai", command=self.change_theme)
+        theme_menu.add_radiobutton(
             label="Solarized Dark", variable=self.current_theme,
             value="solarized-dark", command=self.change_theme)
-
-        # Keyboard shortcuts bindings
-        self.root.bind("<Control-o>", lambda e: self.open_file())
-        self.root.bind("<Control-n>", lambda e: self.new_file())
-        self.root.bind("<Control-s>", lambda e: self.save_file())
-        self.root.bind("<Control-S>", lambda e: self.save_file_as())
-        self.root.bind("<Control-q>", lambda e: self.on_closing())
-        self.root.bind("<Control-z>", lambda e: self.undo())
-        self.root.bind("<Control-y>", lambda e: self.redo())
-        self.root.bind("<Control-x>", lambda e: self.cut())
-        self.root.bind("<Control-c>", lambda e: self.copy())
-        self.root.bind("<Control-v>", lambda e: self.paste())
-        self.root.bind("<Control-a>", lambda e: self.select_all())
-        self.root.bind("<Control-f>", lambda e: self.find_text())
+        theme_menu.add_radiobutton(
+            label="Paraiso Dark", variable=self.current_theme,
+            value="paraiso-dark", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Material Dark", variable=self.current_theme,
+            value="material", command=self.change_theme)
 
 
     # Menu functions
