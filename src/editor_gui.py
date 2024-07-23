@@ -6,11 +6,13 @@ window and handles the GUI elements of the text editor.
 
 import os
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog, messagebox
 from tkinter import font
 from text_editor import TextEditor
 from find_replace_dialog import FindReplaceDialog
 from syntax_highlighted_text import SyntaxHighlightedText
+from file_explorer import FileExplorer
 
 class EditorGUI:
     def __init__(self, root) -> None:
@@ -24,6 +26,7 @@ class EditorGUI:
 
         # Variables
         self.show_line_numbers = tk.IntVar(value=1)
+        self.show_file_explorer = tk.IntVar(value=1)
         self.file_status_var = tk.StringVar()
         self.position_status_var = tk.StringVar()
         self.current_theme = tk.StringVar(value="default")
@@ -49,7 +52,7 @@ class EditorGUI:
         self.root.title("PyEd")
 
         # Set the window size
-        window_width = 800
+        window_width = 1000
         window_height = 600
         self.root.geometry(f"{window_width}x{window_height}")
 
@@ -69,16 +72,20 @@ class EditorGUI:
         self.text_frame = tk.Frame(self.root)
         self.text_frame.pack(expand=True, fill="both")
 
-        # Create a new line numbers area
+        # Create line numbers area
         self.line_numbers = tk.Text(
             self.text_frame, width=4, takefocus=0, border=0,
             state="disabled", wrap="none", fg="coral")
         self.line_numbers.pack(side="left", fill="y")
         self.line_numbers.config(font=('Consolas', 10))
+        # Prevent scrolling
+        self.line_numbers.bind("<MouseWheel>", lambda e: "break")
 
-        # Create a new text area
+        # Create text area
         self.text_area = SyntaxHighlightedText(self.text_frame, undo=True)
-        self.text_area.bind("<<Modified>>", self.text_modified_callback)
+        self.text_area.bind("<Key>", self.text_modified_callback)
+        self.text_area.bind("<KeyRelease>", self.update_line_col)
+        self.text_area.bind("<ButtonRelease>", self.update_line_col)
         self.text_area.pack(side="left", expand=True, fill="both")
 
         # Set tabs to 4 spaces
@@ -93,6 +100,20 @@ class EditorGUI:
         # Configure the text area and line numbers to use the scrollbar
         self.text_area.config(yscrollcommand=self.on_text_scroll)
         self.line_numbers.config(yscrollcommand=self.scrollbar.set)
+
+        # File explorer frame
+        self.file_explorer_frame = tk.Frame(self.text_frame)
+        self.file_explorer_frame.pack(side="right", fill="y")
+
+        # File explorer
+        self.file_explorer = FileExplorer(self.file_explorer_frame)
+        self.file_explorer.pack(side="left", fill="both", expand=True)
+
+        # Scrollbar for file explorer
+        self.file_explorer_scrollbar = ttk.Scrollbar(
+            self.file_explorer_frame, orient="vertical", command=self.file_explorer.yview)
+        self.file_explorer_scrollbar.pack(side="right", fill="y")
+        self.file_explorer.configure(yscrollcommand=self.file_explorer_scrollbar.set)
 
         # Draw the menu/status bar
         self.draw_menu()
@@ -207,8 +228,16 @@ class EditorGUI:
             variable=self.show_line_numbers,
             command=self.toggle_line_numbers)
         
-        # Toggle line numbers key binding
+        view_menu.add_checkbutton(
+            label="Show File Explorer",
+            onvalue=1,
+            offvalue=0,
+            variable=self.show_file_explorer,
+            command=self.toggle_file_explorer)
+        
+        # Toggles key binding
         self.root.bind("<Control-l>", lambda e: self.toggle_line_numbers())
+        self.root.bind("<Control-e>", lambda e: self.toggle_file_explorer())
         
         theme_menu = tk.Menu(view_menu, tearoff=0)
         view_menu.add_cascade(label="Theme", menu=theme_menu)
@@ -272,7 +301,7 @@ class EditorGUI:
             self.is_modified = False
             self.ignore_modified = False
 
-            self.update_status()
+            self.update_file_status()
             self.update_line_numbers()
             self.text_area.highlight()
             self.text_area.focus_set()
@@ -284,7 +313,7 @@ class EditorGUI:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
             self.is_modified = False
-            self.update_status()
+            self.update_file_status()
         else:
             self.save_file_as()
 
@@ -297,7 +326,7 @@ class EditorGUI:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
             self.is_modified = False
-            self.update_status()
+            self.update_file_status()
 
 
     def on_closing(self) -> None:
@@ -366,7 +395,7 @@ class EditorGUI:
         return int(line), int(col) + 1
     
     
-    def update_line_col(self):
+    def update_line_col(self, event=None):
         """Updates the line and column of the cursor."""
         line, col = self.get_line_col()
         self.position_status_var.set(f"Ln {line}, Col {col}")
@@ -406,6 +435,14 @@ class EditorGUI:
         # Force a redraw of the text area
         self.text_area.pack_forget()
         self.text_area.pack(expand=True, fill="both")
+
+
+    def toggle_file_explorer(self, *args):
+        """Toggles the file explorer."""
+        if self.show_file_explorer.get():
+            self.file_explorer_frame.pack(side=tk.RIGHT, fill=tk.Y)
+        else:
+            self.file_explorer_frame.pack_forget()
 
 
     def update_line_numbers(self):
