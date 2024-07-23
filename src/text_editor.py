@@ -22,3 +22,4 @@ class TextEditor:
         with open(file_path, "w", encoding="utf8") as file:
             self.current_file = file_path
             file.write(self.text_buffer)
+

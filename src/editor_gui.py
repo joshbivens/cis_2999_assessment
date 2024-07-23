@@ -29,6 +29,10 @@ class EditorGUI:
         self.current_theme = tk.StringVar(value="default")
         self.ignore_modified = False
 
+        # Track modified status
+        self.is_modified = False
+        self.ignore_modified = False
+
         # Check if the text area has been modified when closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -63,10 +67,6 @@ class EditorGUI:
         # Frame for test area and line numbers
         self.text_frame = tk.Frame(self.root)
         self.text_frame.pack(expand=True, fill="both")
-
-        # Was using to not flip the edit_modified flag,
-        # but I don't know anymore
-        self.ignore_modified = False
 
         # Create a new line numbers area
         self.line_numbers = tk.Text(
@@ -253,21 +253,23 @@ class EditorGUI:
         """Creates a new file in the text editor."""
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
-        self.text_area.edit_modified(False)
+        self.is_modified = False
         self.update_status()
         self.create_new_tab()
 
 
     def open_file(self) -> None:
         """Opens a file in the text editor."""
+        # Prompts to save if modified
+        self.on_open_file()
         file_path = filedialog.askopenfilename()
         if file_path:
-            # self.ignore_modified = True
+            self.ignore_modified = True
             self.text_editor.open_file(file_path)
             self.text_area.delete("1.0", "end")
             self.text_area.insert("1.0", self.text_editor.text_buffer)
-            self.text_area.edit_modified(False)
-            # self.ignore_modified = False
+            self.is_modified = False
+            self.ignore_modified = False
 
             self.update_status()
             self.update_line_numbers()
@@ -280,7 +282,7 @@ class EditorGUI:
         if self.text_editor.current_file:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(self.text_editor.current_file)
-            self.text_area.edit_modified(False)
+            self.is_modified = False
             self.update_status()
         else:
             self.save_file_as()
@@ -288,20 +290,18 @@ class EditorGUI:
 
     def save_file_as(self) -> None:
         """Saves the current file as a new file in the text editor."""
-        file_path = filedialog.asksaveasfilename(defaultextension=".py", filetypes=[("All Files", "*.*")])
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".py", filetypes=[("All Files", "*.*")])
         if file_path:
             self.text_editor.text_buffer = self.text_area.get("1.0", "end")
             self.text_editor.save_file_as(file_path)
-            self.text_area.edit_modified(False)
+            self.is_modified = False
             self.update_status()
 
 
-    # Called when window attempts to close in modified state
-    # or when user clicks on the exit menu item
     def on_closing(self) -> None:
         """Called when the window is closing."""
-        print("on_closing called")
-        if self.text_area.edit_modified():
+        if self.is_modified:
             response = messagebox.askyesnocancel(
                 "Save changes?", "Do you want to save changes before closing?")
             if response:
@@ -311,20 +311,28 @@ class EditorGUI:
         self.root.destroy()
 
 
+    def on_open_file(self) -> None:
+        """Called when a file is opened and the text area has been updated."""
+        if self.is_modified:
+            response = messagebox.askyesnocancel(
+                "Save changes?", "Do you want to save changes before opening a new file?")
+            if response:
+                self.save_file()
+            elif response is None:
+                return
+
+
     def text_modified_callback(self, event=None) -> None:
         """Called when the text area is modified.
         
         Args:
             event (tk.Event): The event that triggered the callback.
         """
-        print("Text modified callback triggered OUTSIDE")
         if not self.ignore_modified:
-            print("Text modified callback triggered")
+            self.is_modified = True
             self.update_status()
-            self.update_line_numbers()
             self.text_area.highlight()
-            # Reset modified flag
-            self.text_area.edit_modified(False)
+            self.update_line_numbers()
 
 
     def change_theme(self) -> None:
@@ -362,14 +370,10 @@ class EditorGUI:
         Args:
             event (tk.Event): The event that triggered the callback
         """
-        filename = self.text_editor.current_file
         # Update file status
-        if filename:
-            filename = self.text_editor.current_file
-            modified = " (modified)" if self.text_area.edit_modified() else ""
-            file_status = f"{filename}{modified}"
-        else:
-            file_status = "untitled"    
+        file_name = os.path.basename(
+            self.text_editor.current_file) if self.text_editor.current_file else "New File"
+        file_status = f"{file_name}{' (modified)' if self.is_modified else ''}"
         self.file_status_var.set(file_status)
 
         # Update position status
