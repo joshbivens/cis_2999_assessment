@@ -40,7 +40,8 @@ class EditorGUI:
         self.draw_gui()
 
         # Update status bar
-        self.update_status()
+        self.update_file_status()
+        self.update_line_col()
 
 
     def draw_gui(self) -> None:
@@ -254,7 +255,7 @@ class EditorGUI:
         self.text_editor.text_buffer = ""
         self.text_area.delete("1.0", "end")
         self.is_modified = False
-        self.update_status()
+        self.update_file_status()
         self.create_new_tab()
 
 
@@ -330,9 +331,10 @@ class EditorGUI:
         """
         if not self.ignore_modified:
             self.is_modified = True
-            self.update_status()
-            self.text_area.highlight()
+            self.update_line_col()
+            self.update_file_status()
             self.update_line_numbers()
+            self.text_area.highlight()
 
 
     def change_theme(self) -> None:
@@ -363,9 +365,15 @@ class EditorGUI:
         line, col = cursor_position.split(".")
         return int(line), int(col) + 1
     
+    
+    def update_line_col(self):
+        """Updates the line and column of the cursor."""
+        line, col = self.get_line_col()
+        self.position_status_var.set(f"Ln {line}, Col {col}")
 
-    def update_status(self, event=None):
-        """Updates the status bar.
+
+    def update_file_status(self, event=None):
+        """Updates the file status in the status bar.
         
         Args:
             event (tk.Event): The event that triggered the callback
@@ -375,11 +383,6 @@ class EditorGUI:
             self.text_editor.current_file) if self.text_editor.current_file else "New File"
         file_status = f"{file_name}{' (modified)' if self.is_modified else ''}"
         self.file_status_var.set(file_status)
-
-        # Update position status
-        line, col = self.get_line_col()
-        line_col_pos = f"Ln {line}, Col {col}"
-        self.position_status_var.set(line_col_pos)
         
 
     def on_text_scroll(self, *args):
@@ -421,4 +424,3 @@ class EditorGUI:
         
         self.line_numbers.config(state="disabled")
         self.line_numbers.yview_moveto(self.text_area.yview()[0])
-
