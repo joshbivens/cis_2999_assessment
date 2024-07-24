@@ -151,7 +151,8 @@ class EditorGUI:
             accelerator="Ctrl+O")
         file_menu.add_command(
             label="Open Folder", 
-            command=self.open_folder)
+            command=self.open_folder,
+            accelerator="Ctrl+Shift+O")
         file_menu.add_command(
             label="New", 
             command=self.new_file, 
@@ -172,6 +173,7 @@ class EditorGUI:
         
         # File menu key bindings
         self.root.bind("<Control-o>", lambda e: self.open_file())
+        self.root.bind("<Control-O>", lambda e: self.open_folder())
         self.root.bind("<Control-n>", lambda e: self.new_file())
         self.root.bind("<Control-s>", lambda e: self.save_file())
         self.root.bind("<Control-S>", lambda e: self.save_file_as())
@@ -326,7 +328,11 @@ class EditorGUI:
 
     def open_folder(self, path=None) -> None:
         """Opens a folder in the file explorer."""
-        folder_path = filedialog.askdirectory() if path is None else path
+        if path and os.path.isfile(path):
+            folder_path = os.path.dirname(path)
+        else:
+            folder_path = filedialog.askdirectory() if path is None else path
+
         if folder_path:
             self.file_explorer.populate_tree(folder_path)
 

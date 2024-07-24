@@ -33,12 +33,15 @@ class FileExplorer(ttk.Treeview):
 
     def process_directory(self, parent, path):
         """Process a directory and its contents."""
-        for p in os.listdir(path):
-            abspath = os.path.join(path, p)
-            isdir = os.path.isdir(abspath)
-            oid = self.insert(parent, 'end', text=p, open=False)
-            if isdir:
-                self.process_directory(oid, abspath)
+        if os.path.isdir(path):
+            for p in os.listdir(path):
+                abspath = os.path.join(path, p)
+                oid = self.insert(parent, 'end', text=p, open=False)
+                if os.path.isdir(abspath):
+                    self.process_directory(oid, abspath)
+        else:
+            # If it's a file, just insert it
+            self.insert(parent, 'end', text=path, open=False)
 
 
     def on_double_click_or_enter(self, event):
