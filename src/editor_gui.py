@@ -258,7 +258,7 @@ class EditorGUI:
             label="Igor", variable=self.current_theme,
             value="igor", command=self.change_theme)
 
-        # Dark Theme
+        # Dark Themes
         theme_menu.add_command(label="")
         theme_menu.add_command(label="Dark", state="disabled")
         theme_menu.add_separator()
