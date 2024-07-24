@@ -146,9 +146,12 @@ class EditorGUI:
         file_menu = tk.Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(
-            label="Open", 
+            label="Open File", 
             command=self.open_file, 
             accelerator="Ctrl+O")
+        file_menu.add_command(
+            label="Open Folder", 
+            command=self.open_folder)
         file_menu.add_command(
             label="New", 
             command=self.new_file, 
@@ -313,10 +316,19 @@ class EditorGUI:
             self.is_modified = False
             self.ignore_modified = False
 
+            # Update Treeview to file's directory
+            self.open_folder(file_path)
+
             self.update_file_status()
             self.update_line_numbers()
             self.text_area.highlight()
             self.text_area.focus_set()
+
+    def open_folder(self, path=None) -> None:
+        """Opens a folder in the file explorer."""
+        folder_path = filedialog.askdirectory() if path is None else path
+        if folder_path:
+            self.file_explorer.populate_tree(folder_path)
 
 
     def on_open_file(self) -> None:
