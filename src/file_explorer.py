@@ -44,10 +44,19 @@ class FileExplorer(ttk.Treeview):
     def on_double_click_or_enter(self, event):
         """Handle the double click or enter key press event."""
         item = self.selection()[0]
-        path = self.item(item, "text")
-        if os.path.isfile(path):
-            self.open_file_callback(path)
-            print(f"Opening file: {path}")
+        file_path = self.get_full_path(item)
+        if os.path.isfile(file_path):
+            self.open_file_callback(file_path)
+            print(f"Opening file: {file_path}")
+
+
+    def get_full_path(self, item):
+        """Get the full path of an item in the treeview."""
+        path_parts = []
+        while item:
+            path_parts.insert(0, self.item(item)["text"])
+            item = self.parent(item)
+        return os.path.join(*path_parts)
 
 
     def refresh(self):
