@@ -95,6 +95,7 @@ class EditorGUI:
         self.text_area.config(tabs=tab)
 
         # Create a scrollbar
+        # TODO: FIX ME error calling moveto on on_text_scroll <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         self.scrollbar = tk.Scrollbar(self.text_frame, command=self.on_text_scroll)
         self.scrollbar.pack(side="right", fill="y")
 
@@ -257,6 +258,12 @@ class EditorGUI:
         theme_menu.add_radiobutton(
             label="Igor", variable=self.current_theme,
             value="igor", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Manni", variable=self.current_theme,
+            value="manni", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Perldoc", variable=self.current_theme,
+            value="perldoc", command=self.change_theme)
 
         # Dark Themes
         theme_menu.add_command(label="")
@@ -275,6 +282,12 @@ class EditorGUI:
         theme_menu.add_radiobutton(
             label="Material Dark", variable=self.current_theme,
             value="material", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Coffee", variable=self.current_theme,
+            value="coffee", command=self.change_theme)
+        theme_menu.add_radiobutton(
+            label="Nord Darker", variable=self.current_theme,
+            value="nord-darker", command=self.change_theme) 
 
 
     # Menu functions
