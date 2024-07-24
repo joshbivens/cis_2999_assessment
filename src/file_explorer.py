@@ -9,13 +9,19 @@ import os
 from tkinter import ttk
 
 class FileExplorer(ttk.Treeview):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, open_file_callback, **kwargs):
         """__init__ method for the FileExplorer class."""
         super().__init__(master, **kwargs)
         self.master = master
+        self.open_file_callback = open_file_callback
+
+        # Bindings
+        self.bind("<Double-1>", self.on_double_click_or_enter)
+        self.bind("<Return>", self.on_double_click_or_enter)
 
         # Populate the treeview
         self.populate_tree()
+
 
     def populate_tree(self, path="."):
         """Populate the treeview with the file system directory structure."""
@@ -23,6 +29,7 @@ class FileExplorer(ttk.Treeview):
         abspath = os.path.abspath(path)
         root_node = self.insert('', 'end', text=abspath, open=True)
         self.process_directory(root_node, abspath)
+
 
     def process_directory(self, parent, path):
         """Process a directory and its contents."""
@@ -32,6 +39,16 @@ class FileExplorer(ttk.Treeview):
             oid = self.insert(parent, 'end', text=p, open=False)
             if isdir:
                 self.process_directory(oid, abspath)
+
+
+    def on_double_click_or_enter(self, event):
+        """Handle the double click or enter key press event."""
+        item = self.selection()[0]
+        path = self.item(item, "text")
+        if os.path.isfile(path):
+            self.open_file_callback(path)
+            print(f"Opening file: {path}")
+
 
     def refresh(self):
         """Refresh the treeview."""

@@ -106,18 +106,25 @@ class EditorGUI:
         self.file_explorer_frame.pack(side="right", fill="y")
 
         # File explorer
-        self.file_explorer = FileExplorer(self.file_explorer_frame)
+        self.file_explorer = FileExplorer(
+            self.file_explorer_frame, show="tree", open_file_callback=self.open_file)
         self.file_explorer.pack(side="left", fill="both", expand=True)
+        ttk.Style().theme_use("clam")
+
+        # TODO: FIX THIS ^^^^^ and also issue where file explorer scrollbar is always visible
+        # TODO: Set font=("Consolas", 10) somehow
 
         # Scrollbar for file explorer
-        self.file_explorer_scrollbar = ttk.Scrollbar(
-            self.file_explorer_frame, orient="vertical", command=self.file_explorer.yview)
-        self.file_explorer_scrollbar.pack(side="right", fill="y")
-        self.file_explorer.configure(yscrollcommand=self.file_explorer_scrollbar.set)
+        # self.file_explorer_scrollbar = ttk.Scrollbar(
+        #     self.file_explorer_frame, orient="vertical", command=self.file_explorer.yview)
+        # self.file_explorer_scrollbar.pack(side="right", fill="y")
+        # self.file_explorer.configure(yscrollcommand=self.file_explorer_scrollbar.set)
+
 
         # Draw the menu/status bar
         self.draw_menu()
         self.draw_status_bar()
+        self.update_bg_color()
 
         
     def draw_status_bar(self) -> None:
@@ -288,11 +295,11 @@ class EditorGUI:
         self.create_new_tab()
 
 
-    def open_file(self) -> None:
+    def open_file(self, path=None) -> None:
         """Opens a file in the text editor."""
         # Prompts to save if modified
         self.on_open_file()
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename() if path is None else path
         if file_path:
             self.ignore_modified = True
             self.text_editor.open_file(file_path)
@@ -305,6 +312,23 @@ class EditorGUI:
             self.update_line_numbers()
             self.text_area.highlight()
             self.text_area.focus_set()
+
+
+    def on_open_file(self) -> None:
+        """Called when a file is opened and the text area has been updated."""
+        if self.is_modified:
+            response = messagebox.askyesnocancel(
+                "Save changes?", "Do you want to save changes before opening a new file?")
+            if response:
+                self.save_file()
+            elif response is None:
+                return
+            
+    
+    def on_closing(self) -> None:
+        """Called when the window is closing."""
+        self.on_open_file()
+        self.root.destroy()
 
 
     def save_file(self) -> None:
@@ -329,29 +353,6 @@ class EditorGUI:
             self.update_file_status()
 
 
-    def on_closing(self) -> None:
-        """Called when the window is closing."""
-        if self.is_modified:
-            response = messagebox.askyesnocancel(
-                "Save changes?", "Do you want to save changes before closing?")
-            if response:
-                self.save_file()
-            elif response is None:
-                return 
-        self.root.destroy()
-
-
-    def on_open_file(self) -> None:
-        """Called when a file is opened and the text area has been updated."""
-        if self.is_modified:
-            response = messagebox.askyesnocancel(
-                "Save changes?", "Do you want to save changes before opening a new file?")
-            if response:
-                self.save_file()
-            elif response is None:
-                return
-
-
     def text_modified_callback(self, event=None) -> None:
         """Called when the text area is modified.
         
@@ -369,13 +370,15 @@ class EditorGUI:
     def change_theme(self) -> None:
         """Changes the theme of the text editor."""
         self.text_area.change_theme(self.current_theme.get())
-        self.update_line_numbers_bg()
+        self.update_bg_color()
 
 
-    def update_line_numbers_bg(self) -> None:
-        """Updates the background color of the line numbers."""
+    def update_bg_color(self) -> None:
+        """Updates the background colors of line numbers and file explorer."""
         bg_color = self.text_area.style.background_color
         self.line_numbers.config(bg=bg_color)
+        ttk.Style().configure("Treeview", background=bg_color, 
+                fieldbackground=bg_color, foreground="coral")
 
 
     # Find and Replace
@@ -408,7 +411,7 @@ class EditorGUI:
             event (tk.Event): The event that triggered the callback
         """
         # Update file status
-        file_name = os.path.basename(
+        file_name = os.path.abspath(
             self.text_editor.current_file) if self.text_editor.current_file else "New File"
         file_status = f"{file_name}{' (modified)' if self.is_modified else ''}"
         self.file_status_var.set(file_status)
