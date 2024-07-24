@@ -234,6 +234,7 @@ class EditorGUI:
             command=self.toggle_file_explorer)
         
         # Toggles key binding
+        # TODO: These don't work FIX ME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         self.root.bind("<Control-l>", lambda e: self.toggle_line_numbers())
         self.root.bind("<Control-e>", lambda e: self.toggle_file_explorer())
         
@@ -387,9 +388,6 @@ class EditorGUI:
         To be used to lighten/darken the background color of 
         the selected text.
         """
-        # Amount to lighten/darken
-        amount = 0.2
-
         # Remove hash
         color = color.lstrip("#")
 
@@ -401,8 +399,11 @@ class EditorGUI:
         # Determine brightness
         brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255
 
+        # Amount to lighten/darken
+        amount = 0.2
+
         # Determine factor based on brightness
-        factor = 1 - amount if brightness > 0.5 else 1 + amount
+        factor = 1 - amount if brightness > 0.5 else 1.5 + amount
 
         # Apply the factor. Ensures values are between 0 and 255
         r = max(0, min(int(r * factor), 255))
