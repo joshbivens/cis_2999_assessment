@@ -23,24 +23,14 @@ class SyntaxHighlightedText(tk.Text):
             **kwargs: Additional keyword arguments to pass to the tk.Text class.
         """
         super().__init__(master, **kwargs)
-        self.configure(font=('Consolas', 10))
         self.theme = theme
         self.highlighting = False
+        self.configure(font=('Consolas', 10))
+
         self.lexer = get_lexer_by_name("python")
         self.style = get_style_by_name(self.theme)
-        self.setup_tags()
 
-    
-    def change_theme(self, theme):
-        """Change the theme of the SyntaxHighlightedText widget.
-        
-        Args:
-            theme (str): The name of the theme to change to.
-        """
-        self.theme = theme
-        self.style = get_style_by_name(self.theme)
         self.setup_tags()
-        self.highlight()
 
     
     def setup_tags(self):
@@ -97,3 +87,16 @@ class SyntaxHighlightedText(tk.Text):
 
         self.edit_modified(False)
         self.highlighting = False
+
+
+    def change_theme(self, theme):
+        """Change the theme of the SyntaxHighlightedText widget.
+        
+        Args:
+            theme (str): The name of the theme to change to.
+        """
+        self.theme = theme
+        self.style = get_style_by_name(self.theme)
+        
+        self.setup_tags()
+        self.highlight()

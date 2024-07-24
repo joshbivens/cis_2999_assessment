@@ -30,6 +30,7 @@ class EditorGUI:
         self.file_status_var = tk.StringVar()
         self.position_status_var = tk.StringVar()
         self.current_theme = tk.StringVar(value="default")
+        self.bg_color = "yellow"
         self.ignore_modified = False
 
         # Track modified status
@@ -89,8 +90,8 @@ class EditorGUI:
         self.text_area.pack(side="left", expand=True, fill="both")
 
         # Set tabs to 4 spaces
-        font = tk.font.Font(font=self.text_area["font"])
-        tab = font.measure('    ')
+        current_font = tk.font.Font(font=self.text_area["font"])
+        tab = current_font.measure('    ')
         self.text_area.config(tabs=tab)
 
         # Create a scrollbar
@@ -110,16 +111,6 @@ class EditorGUI:
             self.file_explorer_frame, show="tree", open_file_callback=self.open_file)
         self.file_explorer.pack(side="left", fill="both", expand=True)
         ttk.Style().theme_use("clam")
-
-        # TODO: FIX THIS ^^^^^ and also issue where file explorer scrollbar is always visible
-        # TODO: Set font=("Consolas", 10) somehow
-
-        # Scrollbar for file explorer
-        # self.file_explorer_scrollbar = ttk.Scrollbar(
-        #     self.file_explorer_frame, orient="vertical", command=self.file_explorer.yview)
-        # self.file_explorer_scrollbar.pack(side="right", fill="y")
-        # self.file_explorer.configure(yscrollcommand=self.file_explorer_scrollbar.set)
-
 
         # Draw the menu/status bar
         self.draw_menu()
@@ -375,10 +366,51 @@ class EditorGUI:
 
     def update_bg_color(self) -> None:
         """Updates the background colors of line numbers and file explorer."""
+        # Get bg color from text area
         bg_color = self.text_area.style.background_color
+
+        # Set line numbers bg color
         self.line_numbers.config(bg=bg_color)
+
+        # Lighten/Darken the bg color for the selected text
+        selected_bg_color = self.lighten_darken_color(bg_color)
+        self.text_area.config(selectbackground=selected_bg_color)
+
+        # Set the bg color for the file explorer
         ttk.Style().configure("Treeview", background=bg_color, 
                 fieldbackground=bg_color, foreground="coral")
+        
+
+    def lighten_darken_color(self, color) -> str:
+        """Lighten a color by a given amount.
+
+        To be used to lighten/darken the background color of 
+        the selected text.
+        """
+        # Amount to lighten/darken
+        amount = 0.2
+
+        # Remove hash
+        color = color.lstrip("#")
+
+        # Convert to RGB
+        r = int(color[0:2], 16)
+        g = int(color[2:4], 16)
+        b = int(color[4:6], 16)
+
+        # Determine brightness
+        brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+        # Determine factor based on brightness
+        factor = 1 - amount if brightness > 0.5 else 1 + amount
+
+        # Apply the factor. Ensures values are between 0 and 255
+        r = max(0, min(int(r * factor), 255))
+        g = max(0, min(int(g * factor), 255))
+        b = max(0, min(int(b * factor), 255))
+        
+        # Recombine and convert to hex
+        return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 
     # Find and Replace

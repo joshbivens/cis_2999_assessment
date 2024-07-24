@@ -47,7 +47,6 @@ class FileExplorer(ttk.Treeview):
         file_path = self.get_full_path(item)
         if os.path.isfile(file_path):
             self.open_file_callback(file_path)
-            print(f"Opening file: {file_path}")
 
 
     def get_full_path(self, item):
