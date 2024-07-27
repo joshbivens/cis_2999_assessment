@@ -326,6 +326,7 @@ class EditorGUI:
             self.text_area.highlight()
             self.text_area.focus_set()
 
+
     def open_folder(self, path=None) -> None:
         """Opens a folder in the file explorer."""
         if path and os.path.isfile(path):
@@ -418,6 +419,9 @@ class EditorGUI:
 
         To be used to lighten/darken the background color of 
         the selected text.
+
+        Args:
+            color (str): The color to lighten/darken.
         """
         # Remove hash
         color = color.lstrip("#")
